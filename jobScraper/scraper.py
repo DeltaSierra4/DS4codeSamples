@@ -3,6 +3,7 @@ import requests
 
 
 def main():
+	# this list must contain the links to job boards. Here we use LACCD and University of California Riverside as examples
 	linx = ["https://www.jobapscloud.com//LACCD/auditor/ClassSpecs.asp?ShowAll=yes&R1=&R2=&R3=", "https://irecruitportal.ucr.edu/irecruit/!Controller?action=jobs_template&page=jobs_browser&public=true&profile_id="]
 
 	for link in linx:
