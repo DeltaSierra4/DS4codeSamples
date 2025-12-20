@@ -1,1 +1,0 @@
-The NIM game directory contains code to train the computer via reinforced machine learning to play a NIM game with the user.
