@@ -67,9 +67,56 @@ def extract_author_and_message(tr_rows: list) -> list[str]:
     return extracted
 
 
-if __name__ == "__main__":
-    rows = extract_log_rows("sample2.htm")
+def gen_summary(system_message, chatlog)
+    client = OpenAI(api_key="""YOUR API KEY""")
+    context = [
+            {
+                "role": "system",
+                "content": system_message
+            },
+            {
+                "role": "user",
+                "content": "\n".join(chatlog)
+            }
+        ]
 
-    for row in rows:
-        print(row)
-        print("-" * 80)
+    response = client.responses.create(
+        model="gpt-5.1",
+        reasoning={"effort": "medium"},
+        input=context
+    )
+    
+    print(response.output_text)
+
+
+if __name__ == "__main__":
+    chatlog_obtained = False
+    while not chatlog_obtained:
+        print("Type in the file path to the htm file containing your chatlogs.")
+        try:
+            rows = extract_log_rows(input())
+        except FileNotFoundError as fnf:
+            print(f"File not found. Please try again: {str(fnf)}")
+            continue
+        except Exception:
+            print("Conversion to chatlog failed. Check your file and try again.")
+            continue
+        chatlog_obtained = True
+
+    system_message = r"""
+You are an AI assistant specialized in summarizing conversations from chat logs.
+Provide a concise, informative summary of the conversation, highlighting:
+    - Main topics discussed
+    - Key points or decisions made
+    - Timeline of important events
+    
+Focus on extracting meaningful content from the chat, ignoring reactions, acknowledgments, 
+and trivial messages. Pay special attention to discussions about problems, solutions, 
+and decisions that were made.
+    
+Keep the summary factual and objective. Do not make things up that weren't discussed
+in the chatlog."""
+    system_message = system_message.strip()
+
+    summary_string = gen_summary(system_message, rows)
+    print(summary_string)

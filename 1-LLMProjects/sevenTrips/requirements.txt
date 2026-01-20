@@ -1,0 +1,11 @@
+docling
+docling-core 
+docling-parse
+pytesseract  
+Pillow
+pytesseract
+pdf2image
+PyPDF2
+PyMuPDF
+opencv-python
+numpy
