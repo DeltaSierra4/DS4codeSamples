@@ -4,9 +4,10 @@ This repository contains various coding samples by Vincent Yang and serves as a 
 
 The `LLM Projects` directory contains the following LLM and AI projects:
 
-* DiscordSummarizer: An AI-assisted summarizer that connects to the logging functionality of Discord bot YAGPDB. Currently work in progress.
+* DiscordSummarizer: An AI-assisted summarizer that connects to the logging functionality of Discord bot YAGPDB.
 * PromptEngineering: Sample codes from 2023 that utilizes LangChain and GPT-3.5 to practice with job searching. `sample1.py` asks GPT-3.5 to summarize a candidate's resume and rate their fit based on a job description. `sample2.py` was used to conduct practice interviews using a candidate's resume and job descriptions.
-* SevenTrips: An AI-assisted advisor that analyzes an applicants resume and a job posting **for a job that they were rejected for**, then provides advice on how to improve the applicant's resume for a better chance to get accepted in the next job application. Currently work in progress.
+* SevenTrips: An AI-assisted advisor that analyzes an applicants resume and a job posting **for a job that they were rejected for**, then provides advice on how to improve the applicant's resume for a better chance to get accepted in the next job application. It also provides resume revisions from the perspective of an ATS bot. Currently work in progress.
+* SillyBattleBot: A silly-fun text-based debate where I make different LLMs engage in a debate against one another.
 
 # Data Science Samples
 

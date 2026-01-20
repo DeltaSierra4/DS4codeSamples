@@ -10,7 +10,13 @@ from PIL import Image
 import mammoth
 
 
-def extract_pdf_text(pdf_path: str) -> str:
+"""
+    scanner.py module used for resumerewriter. It may even be used as a standalone
+    PDF OCR script if you wish.
+"""
+
+
+def extract_pdf_text(pdf_path):
     """
     Extracts all text from a PDF.
     If a page has no embedded text, OCR is used instead.
@@ -78,24 +84,8 @@ def parse_doc(file_path):
     return return_txt
 
 
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: python scanner.py <file>")
-        return 1
-
-    file_path = sys.argv[1]
-
-    try:
-        if not file_path.lower().endswith(".pdf"):
-            text = parse_doc(file_path)
-        else:
-            text = extract_pdf_text(file_path)
-    except Exception as e:
-        print(f"Error: {e}")
-        return 1
-
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+def scan(resume_path):
+    if not file_path.lower().endswith(".pdf"):
+        text = parse_doc(file_path)
+    else:
+        text = extract_pdf_text(file_path)
