@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import re
 from pathlib import Path
+from openai import OpenAI
 
 
 def extract_log_rows(html_path: str):
