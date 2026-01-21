@@ -1,3 +1,5 @@
+NB! For simpler usage, you may use the jupyter notebook included in this repository.
+
 ## Setup Instructions
 
 ### 1. Install uv package manager
