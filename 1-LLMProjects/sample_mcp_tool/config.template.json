@@ -1,0 +1,11 @@
+ {
+  "_comment": "Copy this file to config.json and fill in your values. Never commit config.json.",
+  "litellm_api_key": "sk-THISISWHEREYOUGETAPI",
+  "litellm_endpoint": "https://some.llm.endpoint.here",
+  "model": "your.model.name",
+  "recipient_display_name": "TARGET NAME",
+  "_comment_teams_chat_id": "Optional. If left null the script scans your chat list automatically. To hard-code: open the DM in Teams, copy the chat URL, the long ID after /conversations/ is the chat_id.",
+  "teams_chat_id": "ONLY USE TEAMS CHAT ID FOR NOW",
+  "_comment_ssl_verify": "False = skip SSL verification. Set true only if you have manually added required certs to Python's certification bundle.",
+  "ssl_verify": false
+}
