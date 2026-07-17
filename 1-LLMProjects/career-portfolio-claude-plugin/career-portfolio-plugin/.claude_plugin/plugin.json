@@ -1,0 +1,19 @@
+{
+  "name": "career-portfolio-builder",
+  "version": "1.1.0",
+  "description": "Guides a career-changer through producing tailored job-search documents (master accomplishment inventory, two resumes, two work portfolios) from the Career_Advice_* source files. Start with the 'career-portfolio' orchestrator skill.",
+  "author": {
+    "name": "Vincent Yang",
+    "email": "60omega@gmail.com"
+  },
+  "keywords": [
+    "resume",
+    "portfolio",
+    "career",
+    "job search",
+    "accomplishment inventory",
+    "events",
+    "guest relations",
+    "community"
+  ]
+}
