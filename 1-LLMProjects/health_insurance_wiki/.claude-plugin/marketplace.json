@@ -1,0 +1,30 @@
+{
+  "name": "wikiwiki",
+  "owner": {
+    "name": "Vincent Yang",
+    "email": "vincent.yang@example.com"
+  },
+  "metadata": {
+    "description": "Knowledge-base skill families built on the LLM-as-librarian pattern.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "health-insurance-wiki",
+      "source": "./",
+      "description": "Build and maintain a health-insurance knowledge base for an Agentic RAG system: scaffold, ingest files and URLs into per-carrier folders, refresh, list, query and compare plans. The company folder is the unit of parallelism; cost arithmetic is deterministic Python; an unstated value is TBD, never a guess.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Vincent Yang",
+        "email": "vincent.yang@example.com"
+      },
+      "keywords": [
+        "health-insurance",
+        "knowledge-base",
+        "agentic-rag",
+        "plan-comparison"
+      ],
+      "category": "knowledge-management"
+    }
+  ]
+}
