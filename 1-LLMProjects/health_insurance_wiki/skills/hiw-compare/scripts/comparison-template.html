@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+:root{
+  --bg:#fbfbfa; --panel:#fff; --ink:#1f2328; --muted:#6b7280; --line:#e5e7eb;
+  --accent:#1d4ed8; --accent-soft:#eef2ff; --best:#ecfdf3; --best-ink:#067647;
+  --tbd:#92400e; --tbd-bg:#fef3c7; --absent:#9ca3af;
+  --err:#b42318; --err-bg:#fef3f2; --warn:#b54708;
+  --bronze:#a1662f; --silver:#8a8f98; --gold:#b7791f; --platinum:#4b5563;
+}
+@media (prefers-color-scheme:dark){
+  :root{ --bg:#15171a; --panel:#1c1f24; --ink:#e8eaed; --muted:#9aa1ab;
+         --line:#2c3038; --accent:#7ba2ff; --accent-soft:#1e2536;
+         --best:#12301f; --best-ink:#5fd39a;
+         --tbd:#fbbf24; --tbd-bg:#3a2e10; --absent:#6b7280;
+         --err:#ff8a80; --err-bg:#3a1e1c; --warn:#f5b664; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{padding:22px 26px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+h1{margin:0 0 4px;font-size:19px;font-weight:650;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:12.5px}
+.wrap{padding:22px 26px 70px;max-width:1500px;margin:0 auto}
+h2.sec{font-size:15px;font-weight:640;margin:30px 0 10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:11px;
+  overflow:hidden;margin:0 0 8px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 11px;text-align:left;border-top:1px solid var(--line);vertical-align:top}
+thead th{background:var(--bg);border-top:none;font-size:12px;font-weight:640;
+  vertical-align:bottom;white-space:normal;min-width:150px}
+thead th small{display:block;font-weight:400;color:var(--muted);font-size:11px;margin-top:2px}
+th.rowlab,td.rowlab{width:33%;min-width:210px;color:var(--muted);font-weight:500;
+  background:var(--bg)}
+td.val{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.grp td{background:var(--accent-soft);font-weight:640;font-size:11.5px;
+  text-transform:uppercase;letter-spacing:.05em;color:var(--accent)}
+td.best{background:var(--best);color:var(--best-ink);font-weight:660}
+td.best::after{content:" ✓";font-size:10px;opacity:.75}
+.tbd{color:var(--tbd);background:var(--tbd-bg);border-radius:4px;padding:0 5px;
+  font-size:11.5px;font-weight:600}
+.absent{color:var(--absent)}
+.pill{display:inline-block;padding:1px 7px;border-radius:999px;font-size:11px;
+  font-weight:600;border:1px solid currentColor}
+.tier-Bronze{color:var(--bronze)} .tier-Silver{color:var(--silver)}
+.tier-Gold{color:var(--gold)} .tier-Platinum{color:var(--platinum)}
+.conf-high{color:var(--best-ink)} .conf-medium{color:var(--warn)} .conf-low{color:var(--err)}
+.scen td.val{font-size:15px;font-weight:640}
+.scen td.val .brk{display:block;font-size:11px;font-weight:400;color:var(--muted);
+  white-space:normal;margin-top:3px}
+.uncomp{color:var(--tbd);font-weight:600;font-size:12px}
+.uncomp span{display:block;font-weight:400;font-size:11px;color:var(--muted);
+  white-space:normal;margin-top:2px}
+.note{margin:14px 0;padding:12px 15px;border:1px solid var(--line);border-radius:9px;
+  background:var(--panel);font-size:13px;max-width:104ch}
+.note.warn{border-color:var(--tbd);background:var(--tbd-bg);color:var(--tbd)}
+.note.err{border-color:var(--err);background:var(--err-bg);color:var(--err)}
+.note b{font-weight:660}
+.note ul{margin:7px 0 0;padding-left:20px}
+.note li{margin:2px 0}
+.assump{font-size:12.5px;color:var(--muted);max-width:104ch}
+.assump code{background:var(--bg);border:1px solid var(--line);border-radius:4px;
+  padding:0 4px;font-size:11.5px}
+.narr{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));
+  margin-top:8px}
+.narr .c{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px 16px}
+.narr h3{margin:0 0 3px;font-size:14px;font-weight:640}
+.narr .who{color:var(--muted);font-size:11.5px;margin-bottom:8px}
+.narr p{margin:0 0 7px;font-size:12.8px}
+.narr .path{color:var(--muted);font-size:11px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 0}
+label.chk{display:inline-flex;gap:6px;align-items:center;color:var(--muted);
+  font-size:12.5px;cursor:pointer}
+footer{border-top:1px solid var(--line);margin-top:36px;padding:18px 26px 44px;
+  color:var(--muted);font-size:12px;max-width:1500px;margin-left:auto;margin-right:auto}
+footer strong{color:var(--ink)}
+@media print{ .controls{display:none} .card{break-inside:avoid} }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="ttl">{{TITLE}}</h1>
+  <div class="sub" id="sub"></div>
+  <div class="controls">
+    <label class="chk"><input type="checkbox" id="onlydiff"> Show only rows where the plans differ</label>
+    <label class="chk"><input type="checkbox" id="hideunknown"> Hide rows nobody recorded</label>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="alerts"></div>
+
+  <h2 class="sec">Estimated annual cost</h2>
+  <div class="card"><table id="scen"></table></div>
+  <p class="assump" id="assump"></p>
+
+  <h2 class="sec">Side by side</h2>
+  <div class="card"><table id="matrix"></table></div>
+
+  <h2 class="sec">What each plan is for</h2>
+  <div class="narr" id="narr"></div>
+</div>
+
+<footer>
+  <p><strong>This comparison records what published sources say. It is not advice, not
+  a quote, and not an eligibility determination.</strong> The premiums are list values
+  for the basis shown on each plan and will differ from what a specific person is
+  offered once age, ZIP code, tobacco use, household size and subsidy eligibility are
+  applied. The Healthy and Moderate scenarios are illustrative and rest on the visit
+  counts printed above; the Bad-year figure is exact for in-network care only.
+  Coverage decisions rest on the carrier's official plan documents, not on this page.</p>
+  <p id="foot"></p>
+</footer>
+
+<script type="application/json" id="hiw-comparison">{{COMPARISON_DATA}}</script>
+<script>
+(function(){
+"use strict";
+var D = JSON.parse(document.getElementById("hiw-comparison").textContent);
+var P = D.plans;
+
+function esc(s){ return String(s==null?"":s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+var CUR = D.currency || "USD";
+var SYM = {USD:"$",GBP:"£",EUR:"€",CAD:"$",AUD:"$"}[CUR] || "";
+function money(n){
+  if(n===null||n===undefined) return "";
+  var s = (Math.abs(n%1)>0.001) ? n.toFixed(2) : String(Math.round(n));
+  return SYM + s.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// Three states, three renderings, never collapsed. A TBD is not a zero and an
+// absent key is not a zero either.
+function render(c, kind){
+  if(!c) return '<span class="absent">&mdash;</span>';
+  if(c.state==="tbd")    return '<span class="tbd" title="The source did not state this. It is not zero.">TBD</span>';
+  if(c.state==="absent") return '<span class="absent" title="This dimension does not apply to this plan.">&mdash;</span>';
+  var v=c.v;
+  if(kind==="money") return c.n===null ? esc(v) : money(c.n);
+  if(kind==="pct")   return c.n===null ? esc(v) : (c.n+"%");
+  if(kind==="tier")  return '<span class="pill tier-'+esc(v)+'">'+esc(v)+'</span>';
+  if(kind==="conf")  return '<span class="pill conf-'+esc(v)+'">'+esc(v)+'</span>';
+  if(kind==="bool")  return v==="true" ? "Yes" : (v==="false" ? "No" : esc(v));
+  return esc(v);
+}
+
+var state = { onlyDiff:false, hideUnknown:false };
+
+// ---------------------------------------------------------------------------
+// Scenarios
+// ---------------------------------------------------------------------------
+function drawScenarios(){
+  var h = "<thead><tr><th class='rowlab'>Scenario</th>";
+  P.forEach(function(p){
+    h += "<th>"+esc(p.title)+"<small>"+esc(p.company_name)+"</small></th>";
+  });
+  h += "</tr></thead><tbody>";
+
+  D.scenario_meta.forEach(function(m){
+    var rk = D.scenario_rank[m.key];
+    h += "<tr class='scen'><td class='rowlab'><b>"+esc(m.label)+"</b><br>"
+       + "<span style='font-weight:400;font-size:11.5px'>"+esc(m.desc)+"</span>";
+    if(rk && rk.comparable < rk.total){
+      h += "<br><span class='uncomp'>Ranked across "+rk.comparable+" of "
+         + rk.total+" plans — the rest are missing an input.</span>";
+    }
+    h += "</td>";
+    P.forEach(function(p){
+      var s = p.scenarios[m.key];
+      if(s.total === null){
+        h += "<td class='val'><span class='uncomp'>Not computable"
+           + "<span>Missing: "+esc(s.missing.join("; "))+"</span></span></td>";
+        return;
+      }
+      var best = rk && rk.winners.indexOf(p.plan_id) !== -1;
+      var brk = s.breakdown.map(function(b){
+        return esc(b.label)+" "+money(b.amount);
+      }).join(" + ");
+      h += "<td class='val"+(best?" best":"")+"'>"+money(s.total)
+         + "<span class='brk'>"+brk+"</span></td>";
+    });
+    h += "</tr>";
+  });
+  h += "</tbody>";
+  document.getElementById("scen").innerHTML = h;
+
+  var a = D.assumptions;
+  document.getElementById("assump").innerHTML =
+    "<b>Assumptions, printed because an assumption a reader cannot see is "
+    + "indistinguishable from a fabricated number.</b> Healthy year uses "
+    + "<code>"+a.pcp_visits+"</code> primary-care visits and <code>"+a.rx_months
+    + "</code> months of tier-1 generic. Moderate year uses the full individual "
+    + "deductible, <code>"+a.specialist_visits+"</code> specialist visits, one "
+    + "imaging study and <code>"+a.rx_months+"</code> months of tier-1 generic. "
+    + "Bad year is premium plus the individual out-of-pocket maximum and involves "
+    + "no assumption at all. Change the counts in "
+    + "<code>_config/wiki-config.md</code> and re-run <code>/hiw-compare</code>. "
+    + "All figures in "+CUR+", individual coverage, in-network.";
+}
+
+// ---------------------------------------------------------------------------
+// Matrix
+// ---------------------------------------------------------------------------
+function rowIsIdentical(key){
+  var seen = null;
+  for(var i=0;i<P.length;i++){
+    var c = P[i].cells[key];
+    var sig = c ? c.state+"|"+c.v : "absent|";
+    if(seen === null) seen = sig; else if(seen !== sig) return false;
+  }
+  return true;
+}
+function rowIsAllUnknown(key){
+  return P.every(function(p){
+    var c = p.cells[key];
+    return !c || c.state !== "ok";
+  });
+}
+
+function drawMatrix(){
+  var h = "<thead><tr><th class='rowlab'>Field</th>";
+  P.forEach(function(p){
+    h += "<th>"+esc(p.title)+"<small>"+esc(p.company_name)
+       + (p.status!=="active" ? " · "+esc(p.status) : "")+"</small></th>";
+  });
+  h += "</tr></thead><tbody>";
+
+  var shown = 0, hiddenSame = 0, hiddenUnknown = 0;
+  D.rows.forEach(function(g){
+    var rows = "";
+    g.fields.forEach(function(f){
+      if(state.hideUnknown && rowIsAllUnknown(f.key)){ hiddenUnknown++; return; }
+      if(state.onlyDiff && rowIsIdentical(f.key)){ hiddenSame++; return; }
+      var rk = D.rank[f.key];
+      rows += "<tr><td class='rowlab'>"+esc(f.label);
+      if(rk && rk.comparable < rk.total){
+        rows += " <span class='uncomp' title='Only "+rk.comparable+" of "+rk.total
+              + " plans record this'>("+rk.comparable+"/"+rk.total+")</span>";
+      }
+      rows += "</td>";
+      P.forEach(function(p){
+        var best = rk && rk.winners.indexOf(p.plan_id) !== -1;
+        rows += "<td class='val"+(best?" best":"")+"'>"
+              + render(p.cells[f.key], f.kind)+"</td>";
+      });
+      rows += "</tr>";
+      shown++;
+    });
+    if(rows){
+      h += "<tr class='grp'><td colspan='"+(P.length+1)+"'>"+esc(g.group)+"</td></tr>"
+         + rows;
+    }
+  });
+  h += "</tbody>";
+  document.getElementById("matrix").innerHTML = h;
+
+  if(!shown){
+    document.getElementById("matrix").innerHTML =
+      "<tbody><tr><td style='padding:26px;text-align:center;color:var(--muted)'>"
+      + "Every row is filtered out. Uncheck a filter above.</td></tr></tbody>";
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Alerts and narrative
+// ---------------------------------------------------------------------------
+function drawAlerts(){
+  var out = [];
+  var tbdPlans = P.filter(function(p){ return p.tbd_core.length; });
+  if(tbdPlans.length){
+    out.push("<div class='note warn'><b>Some core costs are unknown, and this "
+      + "comparison does not fill them in.</b><ul>"
+      + tbdPlans.map(function(p){
+          return "<li><b>"+esc(p.title)+"</b> — "+esc(p.tbd_core.join(", "))+"</li>";
+        }).join("")
+      + "</ul>A TBD is shown as TBD, never as zero, and a scenario that needs one "
+      + "is reported as not computable rather than estimated. Run "
+      + "<code>/hiw-refresh</code> against these carriers to go get the values.</div>");
+  }
+  var nosrc = P.filter(function(p){ return !p.has_source; });
+  if(nosrc.length){
+    out.push("<div class='note err'><b>"+nosrc.length+" plan page(s) carry no "
+      + "source marker</b> — "+esc(nosrc.map(function(p){return p.title;}).join(", "))
+      + ". Nothing on those pages can be retraced to an origin, so treat their "
+      + "numbers as unverified.</div>");
+  }
+  var errs = D.findings.filter(function(f){ return f.severity==="error"; });
+  if(errs.length){
+    out.push("<div class='note err'><b>"+errs.length+" contract error(s) on the "
+      + "pages being compared.</b><ul>"
+      + errs.slice(0,8).map(function(f){
+          return "<li><code>"+esc(f.rule)+"</code> "+esc(f.message.split(" — ")[0])
+               + " <span style='opacity:.7'>("+esc(f.page)+")</span></li>";
+        }).join("")
+      + "</ul>Run <code>/hiw-lint</code> before acting on this comparison.</div>");
+  }
+  var sup = P.filter(function(p){ return p.status==="superseded"; });
+  if(sup.length){
+    out.push("<div class='note warn'><b>"+sup.length+" plan(s) here are superseded</b> — "
+      + esc(sup.map(function(p){return p.title;}).join(", "))
+      + ". They are retained for rate history and cannot be bought. Comparing a "
+      + "current plan against one is only meaningful as a year-over-year rate "
+      + "check.</div>");
+  }
+  document.getElementById("alerts").innerHTML = out.join("");
+}
+
+function firstBullets(text, n){
+  if(!text) return [];
+  return text.split("\n").map(function(l){ return l.trim(); })
+    .filter(function(l){ return l.indexOf("-")===0 || l.indexOf("*")===0; })
+    .slice(0, n)
+    .map(function(l){ return l.replace(/^[-*]\s*/, ""); });
+}
+
+function drawNarrative(){
+  document.getElementById("narr").innerHTML = P.map(function(p){
+    var n = p.note || {};
+    var h = "<div class='c'><h3>"+esc(p.title)+"</h3>"
+          + "<div class='who'>"+esc(p.company_name)+"</div>";
+    if(n.one_liner) h += "<p><b>"+esc(n.one_liner)+"</b></p>";
+    if(n.suits)          h += "<p><b>Suits:</b> "+esc(n.suits)+"</p>";
+    if(n.look_elsewhere) h += "<p><b>Look elsewhere:</b> "+esc(n.look_elsewhere)+"</p>";
+    if(n.notable_limits) h += "<p><b>Limits:</b> "+esc(n.notable_limits)+"</p>";
+    if(!n.suits && !n.one_liner){
+      var b = firstBullets(p.fit_notes, 3);
+      if(!b.length) b = firstBullets(p.snapshot, 3);
+      if(b.length) h += "<p>"+b.map(esc).join("<br>")+"</p>";
+      else h += "<p style='color:var(--muted)'>No fit notes on this page yet. "
+             +  "Its <code>## Fit Notes</code> section is still empty.</p>";
+    }
+    return h + "<div class='path'>"+esc(p.page)+"</div></div>";
+  }).join("");
+}
+
+// ---------------------------------------------------------------------------
+// Wiring
+// ---------------------------------------------------------------------------
+document.getElementById("sub").textContent =
+  P.length + " plans · " + new Set(P.map(function(p){return p.company;})).size
+  + " carrier" + (new Set(P.map(function(p){return p.company;})).size===1?"":"s")
+  + (D.plan_year ? " · plan year " + D.plan_year : "")
+  + " · all money in " + CUR + " · generated " + D.generated;
+
+document.getElementById("foot").textContent =
+  "Generated " + D.generated + " by /hiw-compare from " + (D.wiki_name||"the wiki")
+  + ". Cost scenarios computed in build-comparison.py, not by a language model. "
+  + "A ✓ marks the best value among the plans that actually record that field.";
+
+document.getElementById("onlydiff").addEventListener("change", function(e){
+  state.onlyDiff = e.target.checked; drawMatrix();
+});
+document.getElementById("hideunknown").addEventListener("change", function(e){
+  state.hideUnknown = e.target.checked; drawMatrix();
+});
+
+drawAlerts(); drawScenarios(); drawMatrix(); drawNarrative();
+})();
+</script>
+</body>
+</html>

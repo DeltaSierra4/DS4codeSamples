@@ -9,9 +9,10 @@ The `LLM Projects` directory contains the following LLM and AI projects:
 * SevenTrips: An AI-assisted advisor that analyzes an applicants resume and a job posting **for a job that they were rejected for**, then provides advice on how to improve the applicant's resume for a better chance to get accepted in the next job application. It also provides resume revisions from the perspective of an ATS bot. Currently work in progress.
 * SillyBattleBot: A silly-fun text-based debate where I make different LLMs engage in a debate against one another.
 
-Additionally, three Claude projects have been added to the LLM projects:
+Additionally, four Claude projects have been added to the LLM projects:
 
 * career-portfolio-claude-plugin: A Claude plugin that produces easily-readable and interactive business portfolios in HTML and PDF format along with a CV to go with.
+* health_insurance_wiki: A fully-packaged Claude plugin that builds a Karpathy-wiki-like knowledge base that can run Agentic RAG search for the purpose of comparing various health insurance plans across multiple insurance providers.
 * sample_mcp_tool is an observing tool that connects Microsoft Outlook, Onedrive, and Microsoft Teams. This sample tool is configured to look for specific daily/weekly digest emails, summarize them, and upload them to the user's Onedrive while notifying them on Microsoft Teams.
 * telemetry_tool was produced via Claude Cowork using CLAUDE.md and FLOW.md to build a simple telemetry toolkit to monitor token usage of my projects.
 

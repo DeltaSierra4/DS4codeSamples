@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+:root{
+  --bg:#fbfbfa; --panel:#fff; --ink:#1f2328; --muted:#6b7280; --line:#e5e7eb;
+  --accent:#1d4ed8; --accent-soft:#eef2ff;
+  --tbd:#92400e; --tbd-bg:#fef3c7; --absent:#9ca3af;
+  --err:#b42318; --err-bg:#fef3f2; --warn:#b54708; --ok:#067647;
+  --bronze:#a1662f; --silver:#8a8f98; --gold:#b7791f; --platinum:#4b5563;
+}
+@media (prefers-color-scheme:dark){
+  :root{ --bg:#15171a; --panel:#1c1f24; --ink:#e8eaed; --muted:#9aa1ab;
+         --line:#2c3038; --accent:#7ba2ff; --accent-soft:#1e2536;
+         --tbd:#fbbf24; --tbd-bg:#3a2e10; --absent:#6b7280;
+         --err:#ff8a80; --err-bg:#3a1e1c; --warn:#f5b664; --ok:#5fd39a; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+header{padding:22px 26px 16px;border-bottom:1px solid var(--line);background:var(--panel);
+  position:sticky;top:0;z-index:20}
+h1{margin:0 0 4px;font-size:19px;font-weight:650;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:12.5px}
+.wrap{padding:20px 26px 60px;max-width:1600px;margin:0 auto}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 0}
+input[type=search],select{font:inherit;padding:7px 10px;border:1px solid var(--line);
+  border-radius:7px;background:var(--panel);color:var(--ink);min-width:0}
+input[type=search]{flex:1 1 240px;max-width:340px}
+label.chk{display:inline-flex;gap:6px;align-items:center;color:var(--muted);
+  font-size:12.5px;white-space:nowrap;cursor:pointer}
+.stats{display:flex;flex-wrap:wrap;gap:18px;margin:16px 0 4px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  padding:10px 14px;min-width:112px}
+.stat b{display:block;font-size:21px;font-weight:650;line-height:1.2}
+.stat span{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+.notice{margin:16px 0;padding:11px 14px;border-radius:9px;font-size:13px;
+  border:1px solid var(--line);background:var(--panel)}
+.notice.warn{border-color:var(--tbd);background:var(--tbd-bg);color:var(--tbd)}
+section.co{margin:26px 0 0;background:var(--panel);border:1px solid var(--line);
+  border-radius:11px;overflow:hidden}
+.co-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;
+  flex-wrap:wrap;gap:10px;align-items:baseline}
+.co-head h2{margin:0;font-size:16px;font-weight:640}
+.co-head .n{color:var(--muted);font-size:12.5px}
+.co-note{padding:0 16px 14px;color:var(--muted);font-size:12.8px;max-width:92ch}
+.co-note em{color:var(--ink);font-style:normal}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 10px;text-align:left;border-top:1px solid var(--line);
+  vertical-align:top;white-space:nowrap}
+th{background:var(--bg);font-weight:600;font-size:11.5px;text-transform:uppercase;
+  letter-spacing:.04em;color:var(--muted);cursor:pointer;user-select:none;
+  position:sticky;top:82px;z-index:5}
+th.num,td.num{text-align:right;font-variant-numeric:tabular-nums}
+th[aria-sort]{color:var(--accent)}
+th .arrow{opacity:.5;font-size:10px}
+tr.plan{cursor:pointer}
+tr.plan:hover td{background:var(--accent-soft)}
+td.name{white-space:normal;min-width:200px;font-weight:560}
+td.name small{display:block;font-weight:400;color:var(--muted);white-space:normal;
+  max-width:52ch;margin-top:2px}
+.tbd{color:var(--tbd);background:var(--tbd-bg);border-radius:4px;padding:0 5px;
+  font-size:11.5px;font-weight:600;letter-spacing:.02em}
+.absent{color:var(--absent)}
+.pill{display:inline-block;padding:1px 7px;border-radius:999px;font-size:11px;
+  font-weight:600;border:1px solid currentColor}
+.tier-Bronze{color:var(--bronze)} .tier-Silver{color:var(--silver)}
+.tier-Gold{color:var(--gold)} .tier-Platinum{color:var(--platinum)}
+.conf-high{color:var(--ok)} .conf-medium{color:var(--warn)} .conf-low{color:var(--err)}
+.flag{color:var(--err);font-weight:700;font-size:11px}
+.sup{color:var(--muted);font-size:11px;font-style:italic}
+tr.detail>td{background:var(--bg);white-space:normal;padding:0}
+.drawer{padding:16px 18px;display:grid;gap:20px;
+  grid-template-columns:repeat(auto-fit,minmax(268px,1fr))}
+.dgroup h4{margin:0 0 7px;font-size:11.5px;text-transform:uppercase;
+  letter-spacing:.05em;color:var(--muted)}
+.dgroup dl{margin:0;display:grid;grid-template-columns:1fr auto;gap:3px 12px;font-size:12.8px}
+.dgroup dt{color:var(--muted)}
+.dgroup dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.dnote{grid-column:1/-1;border-top:1px solid var(--line);padding-top:14px;
+  font-size:13px;max-width:100ch}
+.dnote p{margin:0 0 7px}
+.dnote b{font-weight:640}
+.dnote .src{color:var(--muted);font-size:12px}
+.pathrow{grid-column:1/-1;color:var(--muted);font-size:11.5px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.empty{padding:26px;color:var(--muted);text-align:center;font-size:13.5px}
+footer{border-top:1px solid var(--line);margin-top:34px;padding:18px 26px 40px;
+  color:var(--muted);font-size:12px;max-width:1600px;margin-left:auto;margin-right:auto}
+footer strong{color:var(--ink)}
+@media print{
+  header{position:static} th{position:static}
+  tr.plan{cursor:default} .bar{display:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="ttl">{{TITLE}}</h1>
+  <div class="sub" id="sub"></div>
+  <div class="bar">
+    <input type="search" id="q" placeholder="Search plan, carrier, network, tier…" aria-label="Search">
+    <select id="fco"><option value="">All carriers</option></select>
+    <select id="ftier"><option value="">All tiers</option></select>
+    <select id="fnet"><option value="">All networks</option></select>
+    <select id="fmkt"><option value="">All markets</option></select>
+    <label class="chk"><input type="checkbox" id="fknown"> Hide plans with unknown core costs</label>
+    <label class="chk"><input type="checkbox" id="fflat"> One flat table</label>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="stats" id="stats"></div>
+  <div id="notices"></div>
+  <div id="body"></div>
+</div>
+
+<footer>
+  <p><strong>This catalog records what published sources say. It is not advice, not a
+  quote, and not an eligibility determination.</strong> Premiums shown are list values
+  for the basis stated on each plan page and will differ from what a specific person is
+  offered once age, ZIP code, tobacco use, household size and subsidy eligibility are
+  applied. Coverage decisions rest on the carrier's official plan documents, not on
+  this catalog.</p>
+  <p id="foot"></p>
+</footer>
+
+<script type="application/json" id="hiw-catalog">{{CATALOG_DATA}}</script>
+<script>
+(function(){
+"use strict";
+var D = JSON.parse(document.getElementById("hiw-catalog").textContent);
+
+// ---------------------------------------------------------------------------
+// Rendering. Three states per value, kept distinct all the way to the DOM:
+//   ok      -> the number, formatted
+//   tbd     -> the TBD badge. NEVER a zero, never blank.
+//   absent  -> an em dash, meaning "this dimension does not apply to this plan"
+// ---------------------------------------------------------------------------
+function esc(s){ return String(s==null?"":s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+  .replace(/"/g,"&quot;"); }
+
+var CUR = D.currency || "USD";
+var SYM = {USD:"$",GBP:"£",EUR:"€",CAD:"$",AUD:"$"}[CUR] || "";
+
+function fmtMoney(n){
+  if(n===null||n===undefined) return "";
+  var s = (Math.abs(n%1)>0.001) ? n.toFixed(2) : String(Math.round(n));
+  return SYM + s.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function render(c, kind){
+  if(!c) return '<span class="absent">&mdash;</span>';
+  if(c.state==="tbd")    return '<span class="tbd" title="The source did not state this. It is not zero.">TBD</span>';
+  if(c.state==="absent") return '<span class="absent" title="This dimension does not apply to this plan.">&mdash;</span>';
+  var v = c.v;
+  if(kind==="money") return c.n===null ? esc(v) : fmtMoney(c.n);
+  if(kind==="pct")   return c.n===null ? esc(v) : (c.n + "%");
+  if(kind==="tier")  return '<span class="pill tier-'+esc(v)+'">'+esc(v)+'</span>';
+  if(kind==="conf")  return '<span class="pill conf-'+esc(v)+'">'+esc(v)+'</span>';
+  if(kind==="bool")  return v==="true" ? "Yes" : (v==="false" ? "No" : esc(v));
+  return esc(v);
+}
+
+// TBD and absent sort LAST in ascending order, always. A sort that floats an
+// unknown to the top of a "cheapest first" list is worse than no sort.
+var BIG = Number.MAX_SAFE_INTEGER;
+function sortKey(c, kind){
+  if(!c) return [2, ""];
+  if(c.state!=="ok") return [1, ""];
+  if(kind==="money"||kind==="pct") return c.n===null ? [1,""] : [0, c.n];
+  if(kind==="tier"){
+    var order = {Bronze:1,"Expanded Bronze":2,Silver:3,Gold:4,Platinum:5,Catastrophic:0};
+    return [0, order[c.v]!==undefined ? order[c.v] : 9];
+  }
+  if(kind==="conf") return [0, {high:0,medium:1,low:2}[c.v] !== undefined ? {high:0,medium:1,low:2}[c.v] : 3];
+  return [0, String(c.v).toLowerCase()];
+}
+
+// ---------------------------------------------------------------------------
+// State
+// ---------------------------------------------------------------------------
+var COLS = D.columns;
+var state = { q:"", co:"", tier:"", net:"", mkt:"", knownOnly:false, flat:false,
+              sort:"premium_monthly_individual", dir:1, open:{} };
+
+function uniq(key){
+  var s = {};
+  D.plans.forEach(function(p){ var v = p.row[key] && p.row[key].v; if(v) s[v]=1; });
+  return Object.keys(s).sort();
+}
+
+function fillSelect(id, values){
+  var el = document.getElementById(id);
+  values.forEach(function(v){
+    var o = document.createElement("option"); o.value=v; o.textContent=v; el.appendChild(o);
+  });
+}
+
+function matches(p){
+  if(state.co   && p.company !== state.co) return false;
+  if(state.tier && (p.row.metal_tier||{}).v !== state.tier) return false;
+  if(state.net  && (p.row.network_type||{}).v !== state.net) return false;
+  if(state.mkt  && (p.row.market||{}).v !== state.mkt) return false;
+  if(state.knownOnly && p.tbd_core.length) return false;
+  if(state.q){
+    var hay = [p.plan_id, p.row.title.v, p.row.company_name.v,
+               (p.row.network_type||{}).v, (p.row.metal_tier||{}).v,
+               (p.row.market||{}).v, p.note.one_liner||"", p.snapshot||""]
+              .join(" ").toLowerCase();
+    if(hay.indexOf(state.q.toLowerCase()) === -1) return false;
+  }
+  return true;
+}
+
+function sorted(list){
+  var col = COLS.filter(function(c){return c.key===state.sort;})[0] || COLS[0];
+  return list.slice().sort(function(a,b){
+    var ka = sortKey(a.row[col.key], col.kind), kb = sortKey(b.row[col.key], col.kind);
+    if(ka[0] !== kb[0]) return ka[0] - kb[0];           // unknowns always last
+    if(ka[1] < kb[1]) return -1*state.dir;
+    if(ka[1] > kb[1]) return  1*state.dir;
+    return a.row.title.v.localeCompare(b.row.title.v);
+  });
+}
+
+function thead(){
+  return "<thead><tr>" + COLS.map(function(c){
+    var on = state.sort===c.key;
+    var arrow = on ? ' <span class="arrow">'+(state.dir>0?"▲":"▼")+'</span>' : "";
+    return '<th data-k="'+c.key+'"'+(c.kind==="money"||c.kind==="pct"?' class="num"':"")
+      + (on?' aria-sort="'+(state.dir>0?"ascending":"descending")+'"':"")
+      + ' title="Sort by '+esc(c.label)+'">'+esc(c.label)+arrow+'</th>';
+  }).join("") + "</tr></thead>";
+}
+
+function planRow(p, showCarrier){
+  var tds = COLS.map(function(c){
+    if(c.key==="company_name" && !showCarrier) return null;
+    var num = (c.kind==="money"||c.kind==="pct") ? " num" : "";
+    if(c.key==="title"){
+      var extra = "";
+      if(p.status==="superseded") extra += ' <span class="sup">superseded</span>';
+      if(p.findings.error) extra += ' <span class="flag" title="'+p.findings.error+
+        ' contract error(s) on this page — run /hiw-lint">●</span>';
+      var line = p.note.one_liner || "";
+      return '<td class="name">'+esc(p.row.title.v)+extra+
+             (line ? "<small>"+esc(line)+"</small>" : "")+"</td>";
+    }
+    return '<td class="'+num.trim()+'">'+render(p.row[c.key], c.kind)+"</td>";
+  }).filter(function(x){return x!==null;});
+  return '<tr class="plan" data-id="'+esc(p.plan_id)+'">'+tds.join("")+"</tr>";
+}
+
+function drawer(p, span){
+  var h = '<tr class="detail"><td colspan="'+span+'"><div class="drawer">';
+  p.detail.forEach(function(g){
+    h += '<div class="dgroup"><h4>'+esc(g.group)+"</h4><dl>";
+    g.rows.forEach(function(r){
+      h += "<dt>"+esc(r.label)+"</dt><dd>"+render(r, r.kind)+"</dd>";
+    });
+    h += "</dl></div>";
+  });
+  var n = p.note || {};
+  if(n.suits || n.look_elsewhere || n.notable_limits){
+    h += '<div class="dnote">';
+    if(n.suits)          h += "<p><b>Suits:</b> "+esc(n.suits)+"</p>";
+    if(n.look_elsewhere) h += "<p><b>Look elsewhere:</b> "+esc(n.look_elsewhere)+"</p>";
+    if(n.notable_limits) h += "<p><b>Notable limits:</b> "+esc(n.notable_limits)+"</p>";
+    h += '<p class="src">Narrative written from this plan\'s page by the carrier '
+      +  'subagent. Every number above comes from the page frontmatter, not from '
+      +  'this text.</p></div>';
+  }
+  if(p.tbd_core.length){
+    h += '<div class="dnote"><p class="src"><b>Unknown core costs:</b> '
+      + esc(p.tbd_core.join(", ")) + '. These are recorded as TBD because the source '
+      + 'did not state them — they are not zero, and no comparison should treat '
+      + 'them as such. Run <code>/hiw-refresh</code> to go after them.</p></div>';
+  }
+  if(!p.has_source){
+    h += '<div class="dnote"><p class="src"><b>No source marker on this page.</b> '
+      + 'Nothing on it can be traced to an origin.</p></div>';
+  }
+  h += '<div class="pathrow">'+esc(p.page)+"</div>";
+  return h + "</div></td></tr>";
+}
+
+function draw(){
+  var list = D.plans.filter(matches);
+  var body = document.getElementById("body");
+
+  document.getElementById("stats").innerHTML = [
+    ["<b>"+list.length+"</b><span>plans shown</span>"],
+    ["<b>"+new Set(list.map(function(p){return p.company;})).size+"</b><span>carriers</span>"],
+    ["<b>"+list.filter(function(p){return p.tbd_core.length;}).length+
+     "</b><span>with unknown core cost</span>"],
+    ["<b>"+D.totals.plans+"</b><span>in the wiki</span>"]
+  ].map(function(s){return '<div class="stat">'+s+"</div>";}).join("");
+
+  var notices = [];
+  if(D.totals.errors){
+    notices.push('<div class="notice warn"><b>'+D.totals.errors+' contract error(s)'
+      +'</b> across these plan pages, marked ● in the table. Run '
+      +'<code>/hiw-lint</code> before acting on a comparison built from this data.</div>');
+  }
+  if(D.totals.plans_without_source){
+    notices.push('<div class="notice warn"><b>'+D.totals.plans_without_source
+      +' plan page(s) carry no source marker.</b> Their numbers cannot be retraced '
+      +'to an origin.</div>');
+  }
+  if(D.totals.stubs){
+    notices.push('<div class="notice"><b>'+D.totals.stubs+' page(s) are still empty '
+      +'scaffolds</b> — ingested as a name, never filled in.</div>');
+  }
+  document.getElementById("notices").innerHTML = notices.join("");
+
+  if(!list.length){
+    body.innerHTML = '<div class="notice"><div class="empty">'
+      + (D.totals.plans ? "No plan matches these filters."
+         : "This wiki has no plan pages yet. Run <code>/hiw-ingest</code> with a plan "
+         + "document or a carrier URL.")
+      + "</div></div>";
+    return;
+  }
+
+  var html = "";
+  if(state.flat){
+    html = '<section class="co"><table>' + thead() + "<tbody>";
+    sorted(list).forEach(function(p){
+      html += planRow(p, true);
+      if(state.open[p.plan_id]) html += drawer(p, COLS.length);
+    });
+    html += "</tbody></table></section>";
+  } else {
+    D.companies.forEach(function(c){
+      var mine = list.filter(function(p){ return p.company===c.company; });
+      if(!mine.length) return;
+      var n = c.note || {};
+      html += '<section class="co"><div class="co-head"><h2>'+esc(c.name)+"</h2>"
+        + '<span class="n">'+mine.length+" plan"+(mine.length===1?"":"s")
+        + (c.networks.length ? " · "+esc(c.networks.join(", ")) : "")
+        + (c.states.length ? " · "+esc(c.states.join(", ")) : "")
+        + "</span></div>";
+      if(n.positioning || n.watch_outs){
+        html += '<div class="co-note">'
+          + (n.positioning ? "<em>"+esc(n.positioning)+"</em> " : "")
+          + (n.watch_outs ? "<br><b>Watch:</b> "+esc(n.watch_outs) : "")
+          + "</div>";
+      }
+      var cols = COLS.filter(function(x){return x.key!=="company_name";});
+      html += "<table><thead><tr>" + cols.map(function(x){
+        var on = state.sort===x.key;
+        var arrow = on ? ' <span class="arrow">'+(state.dir>0?"▲":"▼")+'</span>' : "";
+        return '<th data-k="'+x.key+'"'+(x.kind==="money"||x.kind==="pct"?' class="num"':"")
+          + (on?' aria-sort="'+(state.dir>0?"ascending":"descending")+'"':"")+">"
+          + esc(x.label)+arrow+"</th>";
+      }).join("") + "</tr></thead><tbody>";
+      sorted(mine).forEach(function(p){
+        html += planRow(p, false);
+        if(state.open[p.plan_id]) html += drawer(p, cols.length);
+      });
+      html += "</tbody></table></section>";
+    });
+  }
+  body.innerHTML = html;
+}
+
+// ---------------------------------------------------------------------------
+// Wiring
+// ---------------------------------------------------------------------------
+document.getElementById("sub").textContent =
+  D.totals.companies + " carrier" + (D.totals.companies===1?"":"s") + " · "
+  + D.totals.plans + " plan" + (D.totals.plans===1?"":"s")
+  + (D.plan_year ? " · plan year " + D.plan_year : "")
+  + (D.geography ? " · " + D.geography : "")
+  + " · all money in " + CUR
+  + " · generated " + D.generated;
+
+document.getElementById("foot").textContent =
+  "Generated " + D.generated + " by /hiw-list-plan from "
+  + (D.wiki_name || "the wiki") + ". Regenerate after every ingest — this file is "
+  + "a snapshot, not a live view."
+  + (D.include_superseded ? " Superseded plans are included." : " Superseded plans are excluded.");
+
+fillSelect("fco", D.companies.map(function(c){return c.company;}));
+(function(){
+  var el = document.getElementById("fco");
+  for(var i=1;i<el.options.length;i++){
+    var slug = el.options[i].value;
+    var m = D.companies.filter(function(c){return c.company===slug;})[0];
+    if(m) el.options[i].textContent = m.name;
+  }
+})();
+fillSelect("ftier", uniq("metal_tier"));
+fillSelect("fnet",  uniq("network_type"));
+fillSelect("fmkt",  uniq("market"));
+
+var qEl = document.getElementById("q");
+var t = null;
+qEl.addEventListener("input", function(){
+  clearTimeout(t);
+  t = setTimeout(function(){ state.q = qEl.value.trim(); draw(); }, 110);
+});
+document.getElementById("fco").addEventListener("change", function(e){ state.co=e.target.value; draw(); });
+document.getElementById("ftier").addEventListener("change", function(e){ state.tier=e.target.value; draw(); });
+document.getElementById("fnet").addEventListener("change", function(e){ state.net=e.target.value; draw(); });
+document.getElementById("fmkt").addEventListener("change", function(e){ state.mkt=e.target.value; draw(); });
+document.getElementById("fknown").addEventListener("change", function(e){ state.knownOnly=e.target.checked; draw(); });
+document.getElementById("fflat").addEventListener("change", function(e){ state.flat=e.target.checked; draw(); });
+
+document.getElementById("body").addEventListener("click", function(ev){
+  var th = ev.target.closest("th[data-k]");
+  if(th){
+    var k = th.getAttribute("data-k");
+    if(state.sort===k){ state.dir = -state.dir; } else { state.sort=k; state.dir=1; }
+    draw(); return;
+  }
+  var tr = ev.target.closest("tr.plan");
+  if(tr){
+    var id = tr.getAttribute("data-id");
+    state.open[id] = !state.open[id];
+    draw();
+  }
+});
+
+document.addEventListener("keydown", function(e){
+  if(e.key==="/" && document.activeElement!==qEl){ e.preventDefault(); qEl.focus(); }
+  if(e.key==="Escape" && document.activeElement===qEl){ qEl.value=""; state.q=""; draw(); qEl.blur(); }
+});
+
+draw();
+})();
+</script>
+</body>
+</html>

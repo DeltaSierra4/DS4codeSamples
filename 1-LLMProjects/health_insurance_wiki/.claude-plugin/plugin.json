@@ -1,0 +1,26 @@
+{
+  "name": "health-insurance-wiki",
+  "version": "1.0.0",
+  "description": "Seven skills that build and maintain a health-insurance knowledge base for Agentic RAG: scaffold it, ingest carrier documents and plan pages into per-company folders, keep it current, then list, query and compare plans across or within carriers. Deterministic cost modelling in stdlib Python; TBD is never a zero.",
+  "author": {
+    "name": "Vincent Yang",
+    "email": "vincent.yang@example.com"
+  },
+  "keywords": [
+    "health-insurance",
+    "knowledge-base",
+    "agentic-rag",
+    "wiki",
+    "plan-comparison",
+    "ingest"
+  ],
+  "skills": [
+    "./skills/hiw-setup",
+    "./skills/hiw-ingest",
+    "./skills/hiw-refresh",
+    "./skills/hiw-list-plan",
+    "./skills/hiw-query",
+    "./skills/hiw-compare",
+    "./skills/hiw-lint"
+  ]
+}
