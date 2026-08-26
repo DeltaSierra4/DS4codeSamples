@@ -1,0 +1,31 @@
+{
+  "name": "wikiwiki",
+  "owner": {
+    "name": "Vincent Yang",
+    "email": "vincent.yang@example.com"
+  },
+  "metadata": {
+    "description": "Knowledge-base skill families built on the LLM-as-librarian pattern.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "ai-lib",
+      "source": "./",
+      "description": "An Agentic RAG document library over your own PDFs — AI, LLM, data science, math/science/tech/cyber and miscellaneous. Fourteen leaf topics, one subagent per topic. Every claim carries a page locator or says why it does not; links are followed exactly one hop and the limit is audited by the linter; benchmark comparison and disagreement detection are deterministic Python.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Vincent Yang",
+        "email": "vincent.yang@example.com"
+      },
+      "keywords": [
+        "agentic-rag",
+        "document-library",
+        "provenance",
+        "pdf",
+        "llm"
+      ],
+      "category": "knowledge-management"
+    }
+  ]
+}
