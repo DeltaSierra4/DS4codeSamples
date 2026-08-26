@@ -1,0 +1,28 @@
+{
+  "name": "ai-lib",
+  "version": "1.0.0",
+  "description": "Seven skills that build and maintain a document library for Agentic RAG over your own PDFs: scaffold a fourteen-leaf topic tree, ingest a PDF or text file as attributed claims and follow its links exactly one hop, then list, query, compare and refresh. Every claim carries a provenance marker; the one-hop limit is audited, not merely instructed; benchmark comparison is deterministic Python.",
+  "author": {
+    "name": "Vincent Yang",
+    "email": "vincent.yang@example.com"
+  },
+  "keywords": [
+    "agentic-rag",
+    "document-library",
+    "knowledge-base",
+    "pdf",
+    "provenance",
+    "ai",
+    "llm",
+    "research"
+  ],
+  "skills": [
+    "./skills/ai-lib-setup",
+    "./skills/ai-lib-ingest",
+    "./skills/ai-lib-refresh",
+    "./skills/ai-lib-list",
+    "./skills/ai-lib-query",
+    "./skills/ai-lib-compare",
+    "./skills/ai-lib-lint"
+  ]
+}

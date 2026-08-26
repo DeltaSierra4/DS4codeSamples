@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+:root{
+  --bg:#fbfbfa; --panel:#fff; --ink:#1f2328; --muted:#6b7280; --line:#e5e7eb;
+  --accent:#1d4ed8; --soft:#eef2ff; --hi:#ecfdf3; --hi-ink:#067647;
+  --loc:#067647; --loc-bg:#ecfdf3; --unloc:#92400e; --unloc-bg:#fef3c7;
+  --link:#5b21b6; --link-bg:#f5f3ff; --infer:#0e7490; --infer-bg:#ecfeff;
+  --none:#b42318; --none-bg:#fef3f2; --dis:#b54708; --dis-bg:#fffaeb;
+}
+@media (prefers-color-scheme:dark){
+  :root{ --bg:#15171a; --panel:#1c1f24; --ink:#e8eaed; --muted:#9aa1ab; --line:#2c3038;
+    --accent:#7ba2ff; --soft:#1e2536; --hi:#12301f; --hi-ink:#5fd39a;
+    --loc:#5fd39a; --loc-bg:#12301f; --unloc:#fbbf24; --unloc-bg:#3a2e10;
+    --link:#c4b5fd; --link-bg:#251c3d; --infer:#67e8f9; --infer-bg:#0d2b31;
+    --none:#ff8a80; --none-bg:#3a1e1c; --dis:#f5b664; --dis-bg:#332612; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{padding:20px 24px 14px;border-bottom:1px solid var(--line);background:var(--panel)}
+h1{margin:0 0 4px;font-size:19px;font-weight:650;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:12.5px}
+.wrap{padding:20px 24px 64px;max-width:1420px;margin:0 auto}
+h2.sec{font-size:15px;font-weight:640;margin:28px 0 8px}
+h2.sec .hint{font-weight:400;font-size:12.5px;color:var(--muted);margin-left:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:11px;
+  overflow:hidden;margin:0 0 6px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 11px;text-align:left;border-top:1px solid var(--line);vertical-align:top}
+thead th{background:var(--bg);border-top:none;font-size:12px;font-weight:640;
+  vertical-align:bottom;min-width:150px}
+thead th small{display:block;font-weight:400;color:var(--muted);font-size:11px;margin-top:2px}
+th.rl,td.rl{width:24%;min-width:180px;color:var(--muted);font-weight:500;background:var(--bg)}
+td.v{font-variant-numeric:tabular-nums}
+td.hi{background:var(--hi);color:var(--hi-ink);font-weight:650}
+tr.dis td{background:var(--dis-bg)}
+tr.dis td.rl{color:var(--dis);font-weight:650}
+.loco{display:block;font-size:11px;color:var(--muted);font-variant-numeric:normal}
+.pill{display:inline-block;padding:1px 7px;border-radius:999px;font-size:10.5px;
+  font-weight:600;border:1px solid currentColor}
+.note{margin:12px 0;padding:11px 14px;border:1px solid var(--line);border-radius:9px;
+  background:var(--panel);font-size:13px;max-width:106ch}
+.note.bad{border-color:var(--none);background:var(--none-bg);color:var(--none)}
+.note.warn{border-color:var(--dis);background:var(--dis-bg);color:var(--dis)}
+.note b{font-weight:660}
+.note ul{margin:7px 0 0;padding-left:20px}
+.mk{font-size:10.5px;font-weight:600;padding:1px 6px;border-radius:5px;margin-left:6px;
+  white-space:nowrap}
+.mk.loc{color:var(--loc);background:var(--loc-bg)}
+.mk.unloc{color:var(--unloc);background:var(--unloc-bg)}
+.mk.link{color:var(--link);background:var(--link-bg)}
+.mk.infer{color:var(--infer);background:var(--infer-bg)}
+.mk.none{color:var(--none);background:var(--none-bg)}
+.ctype{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);
+  font-weight:650;padding:8px 11px;background:var(--soft)}
+ul.cl{margin:0;padding:6px 11px 10px 30px}
+ul.cl li{margin:4px 0;font-size:12.8px}
+.empty{padding:22px;color:var(--muted);text-align:center;font-size:13px}
+.path{color:var(--muted);font-size:11px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+footer{border-top:1px solid var(--line);margin-top:32px;padding:16px 24px 40px;
+  color:var(--muted);font-size:12px;max-width:1420px;margin-left:auto;margin-right:auto}
+footer strong{color:var(--ink)}
+@media print{ .card{break-inside:avoid} }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="ttl">{{TITLE}}</h1>
+  <div class="sub" id="sub"></div>
+</header>
+
+<div class="wrap">
+  <div id="alerts"></div>
+
+  <h2 class="sec">Benchmarks<span class="hint">joined on the exact (benchmark, metric) pair — the document's own names, verbatim</span></h2>
+  <div class="card"><table id="join"></table></div>
+  <p class="sub" id="joinnote"></p>
+
+  <h2 class="sec">Metadata</h2>
+  <div class="card"><table id="meta"></table></div>
+
+  <h2 class="sec">Claims<span class="hint">grouped by type, every marker intact</span></h2>
+  <div id="claims"></div>
+</div>
+
+<footer>
+  <p><strong>This comparison records what these documents say. A document being in the
+  library implies nothing about whether it is correct.</strong> Where two documents report
+  different numbers for the same benchmark, that is shown as a disagreement and no winner
+  is picked — different harnesses, prompts, dates and checkpoints all produce different
+  numbers legitimately, and which one applies to your case is not something this page can
+  know. Every claim carries the marker naming where it came from; a linked-page claim is
+  not the document's own.</p>
+  <p id="foot"></p>
+</footer>
+
+<script type="application/json" id="ai-lib-compare">{{COMPARE_DATA}}</script>
+<script>
+(function(){
+"use strict";
+var D=JSON.parse(document.getElementById("ai-lib-compare").textContent);
+var P=D.documents;
+
+function esc(s){ return String(s==null?"":s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+var MK={loc:"this document, located", unloc:"this document, page not pinned",
+        link:"a depth-1 linked page — NOT this document",
+        infer:"the reader's own conclusion", none:"NO MARKER — untraceable"};
+
+function head(){
+  return "<thead><tr><th class='rl'>&nbsp;</th>" + P.map(function(d){
+    return "<th>"+esc(d.title)+"<small>"+esc(d.fm.publication_type||"")
+      + " · "+esc(d.authority||"")+(d.published? " · "+esc(d.published):"")
+      + (d.stale? " · <b>stale</b>":"")+"</small></th>";
+  }).join("") + "</tr></thead>";
+}
+
+function drawJoin(){
+  if(!D.join.length){
+    document.getElementById("join").innerHTML =
+      "<tbody><tr><td class='empty'>None of these documents records a benchmark row in "
+      + "<code>## Evidence</code>, so there is nothing to join. That is common for "
+      + "announcements and explainers.</td></tr></tbody>";
+    document.getElementById("joinnote").textContent = "";
+    return;
+  }
+  var h=head()+"<tbody>";
+  D.join.forEach(function(r){
+    var dis = D.disagreements.some(function(x){
+      return x.benchmark===r.benchmark && x.metric===r.metric; });
+    h += "<tr"+(dis?" class='dis'":"")+"><td class='rl'>"+esc(r.benchmark)
+       + "<span class='loco'>"+esc(r.metric||"—")
+       + (r.shared? "" : " · only one document reports this")
+       + (dis? " · <b>disagreement</b>":"")+"</span></td>";
+    P.forEach(function(d){
+      var c=r.cells[d.doc_id];
+      if(!c){ h += "<td class='v' style='color:var(--muted)'>—</td>"; return; }
+      var best = r.highest===d.doc_id && r.comparable>1 && !dis;
+      h += "<td class='v"+(best?" hi":"")+"'>"+esc(c.reported||"—")
+        + (c.baseline? "<span class='loco'>vs "+esc(c.baseline)+"</span>":"")
+        + (c.locator? "<span class='loco'>"+esc(c.locator)+"</span>"
+                    : "<span class='loco' style='color:var(--none)'>no locator</span>")
+        + "</td>";
+    });
+    h += "</tr>";
+  });
+  document.getElementById("join").innerHTML = h+"</tbody>";
+  document.getElementById("joinnote").innerHTML =
+    "<b>The join is exact on the normalized name.</b> \"MMLU\" and \"Massive Multitask "
+    + "Language Understanding\" do not join, and neither do a 5-shot and a 0-shot result "
+    + "recorded under different metric names — fuzzy matching would report agreement "
+    + "where none exists. " + D.totals.shared_rows + " of " + D.totals.benchmark_rows
+    + " row(s) appear in more than one document.";
+}
+
+function drawMeta(){
+  var h=head()+"<tbody>";
+  D.meta_rows.forEach(function(r){
+    var vals=P.map(function(d){ return d.fm[r.key]||""; });
+    if(vals.every(function(v){ return !v; })) return;
+    h += "<tr><td class='rl'>"+esc(r.label)+"</td>"
+      + vals.map(function(v){ return "<td>"+(v? esc(v):"<span style='color:var(--muted)'>—</span>")+"</td>"; }).join("")
+      + "</tr>";
+  });
+  h += "<tr><td class='rl'>Claims (located)</td>"
+    + P.map(function(d){ return "<td class='v'>"+d.claim_count+" ("+d.located+")"
+        + (d.unmarked? " <b style='color:var(--none)'>· "+d.unmarked+" unmarked</b>":"")+"</td>"; }).join("")
+    + "</tr>";
+  h += "<tr><td class='rl'>Topic</td>"
+    + P.map(function(d){ return "<td><code style='font-size:11.5px'>"+esc(d.topic)+"</code></td>"; }).join("")
+    + "</tr>";
+  h += "<tr><td class='rl'>Page</td>"
+    + P.map(function(d){ return "<td class='path'>"+esc(d.page)+"</td>"; }).join("")
+    + "</tr>";
+  document.getElementById("meta").innerHTML = h+"</tbody>";
+}
+
+function drawClaims(){
+  var out="";
+  D.claim_types.forEach(function(ct){
+    var any=P.some(function(d){ return d.claims.some(function(c){ return c.type===ct; }); });
+    if(!any) return;
+    out += "<div class='card'><div class='ctype'>"+esc(ct||"untyped")+"</div><table><tbody><tr>";
+    P.forEach(function(d){
+      var mine=d.claims.filter(function(c){ return c.type===ct; });
+      out += "<td style='vertical-align:top;width:"+Math.floor(100/P.length)+"%'>";
+      if(!mine.length){ out += "<span style='color:var(--muted);padding:8px 11px;display:block'>—</span>"; }
+      else{
+        out += "<ul class='cl'>" + mine.map(function(c){
+          var k=MK[c.kind]?c.kind:"none";
+          return "<li>"+esc(c.text)+"<span class='mk "+k+"' title='"+esc(MK[k])+"'>"
+            + esc(c.marker||k)+"</span></li>";
+        }).join("") + "</ul>";
+      }
+      out += "</td>";
+    });
+    out += "</tr></tbody></table></div>";
+  });
+  document.getElementById("claims").innerHTML = out ||
+    "<div class='card'><div class='empty'>No claims recorded on any of these pages.</div></div>";
+}
+
+function drawAlerts(){
+  var out=[], t=D.totals;
+  if(D.disagreements.length){
+    out.push("<div class='note warn'><b>"+D.disagreements.length+" benchmark "
+      + "disagreement(s).</b> The same benchmark and metric, different numbers:<ul>"
+      + D.disagreements.map(function(x){
+          return "<li><b>"+esc(x.benchmark)+"</b> / "+esc(x.metric)+" — "
+            + x.values.map(function(v){
+                return esc(v.reported)+" <span style='opacity:.75'>("
+                  + esc(v.doc_id)+", "+esc(v.authority)+", "+esc(v.locator||"no locator")
+                  + ")</span>"; }).join(" vs ")
+            + " · spread "+x.spread+"</li>";
+        }).join("")
+      + "</ul>Not necessarily an error — harness, prompt, date and checkpoint all move "
+      + "these numbers. No winner is picked here.</div>");
+  }
+  if(t.unmarked){
+    out.push("<div class='note bad'><b>"+t.unmarked+" claim(s) on these pages carry no "
+      + "provenance marker</b> and are shown with a red <span class='mk none'>none</span> "
+      + "badge. They cannot be traced to a page and should not be relied on.</div>");
+  }
+  if(t.all_first_party){
+    out.push("<div class='note warn'><b>Every document here is first-party.</b> They are "
+      + "maximally authoritative on what was built and not at all disinterested about how "
+      + "good it is. An independent evaluation would change what this comparison can "
+      + "support.</div>");
+  }
+  if(t.stale){
+    out.push("<div class='note warn'><b>"+t.stale+" document(s) are past their topic's "
+      + "staleness threshold.</b> In a field that moves monthly, a comparison including "
+      + "one is a historical comparison.</div>");
+  }
+  if(t.errors){
+    out.push("<div class='note bad'><b>"+t.errors+" contract error(s)</b> on the pages "
+      + "compared. Run <code>/ai-lib-lint</code> before acting on this.</div>");
+  }
+  document.getElementById("alerts").innerHTML=out.join("");
+}
+
+document.getElementById("sub").textContent =
+  P.length+" documents · "+D.totals.topics+" topic(s) · "+D.totals.claims+" claims · "
+  + D.totals.benchmark_rows+" benchmark row(s), "+D.totals.disagreements
+  + " disagreement(s) · generated "+D.generated;
+
+document.getElementById("foot").textContent =
+  "Generated "+D.generated+" by /ai-lib-compare from "+D.library_name
+  + ". The benchmark join is computed in build-compare.py, not by a language model. "
+  + "A ✓-highlighted cell is the highest reported value among documents that record that "
+  + "row and agree; a disagreeing row is highlighted instead and no cell is marked best."
+  + (D.shared_tags.length? " Shared tags: "+D.shared_tags.join(", ")+"." : "");
+
+drawAlerts(); drawJoin(); drawMeta(); drawClaims();
+})();
+</script>
+</body></html>

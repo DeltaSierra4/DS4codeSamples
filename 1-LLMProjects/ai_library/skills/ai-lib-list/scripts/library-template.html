@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+:root{
+  --bg:#fbfbfa; --panel:#fff; --ink:#1f2328; --muted:#6b7280; --line:#e5e7eb;
+  --accent:#1d4ed8; --soft:#eef2ff;
+  --loc:#067647; --loc-bg:#ecfdf3;
+  --unloc:#92400e; --unloc-bg:#fef3c7;
+  --link:#5b21b6; --link-bg:#f5f3ff;
+  --infer:#0e7490; --infer-bg:#ecfeff;
+  --none:#b42318; --none-bg:#fef3f2;
+  --stale:#b54708;
+}
+@media (prefers-color-scheme:dark){
+  :root{ --bg:#15171a; --panel:#1c1f24; --ink:#e8eaed; --muted:#9aa1ab; --line:#2c3038;
+    --accent:#7ba2ff; --soft:#1e2536;
+    --loc:#5fd39a; --loc-bg:#12301f; --unloc:#fbbf24; --unloc-bg:#3a2e10;
+    --link:#c4b5fd; --link-bg:#251c3d; --infer:#67e8f9; --infer-bg:#0d2b31;
+    --none:#ff8a80; --none-bg:#3a1e1c; --stale:#f5b664; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{padding:20px 24px 14px;border-bottom:1px solid var(--line);background:var(--panel);
+  position:sticky;top:0;z-index:20}
+h1{margin:0 0 4px;font-size:19px;font-weight:650;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:12.5px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 0}
+input[type=search],select{font:inherit;padding:7px 10px;border:1px solid var(--line);
+  border-radius:7px;background:var(--panel);color:var(--ink);min-width:0}
+input[type=search]{flex:1 1 260px;max-width:380px}
+label.chk{display:inline-flex;gap:6px;align-items:center;color:var(--muted);
+  font-size:12.5px;white-space:nowrap;cursor:pointer}
+.wrap{padding:18px 24px 60px;max-width:1280px;margin:0 auto}
+.stats{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 6px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  padding:9px 13px;min-width:104px}
+.stat b{display:block;font-size:20px;font-weight:650;line-height:1.2}
+.stat span{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.notice{margin:12px 0;padding:11px 14px;border-radius:9px;font-size:13px;
+  border:1px solid var(--line);background:var(--panel)}
+.notice.bad{border-color:var(--none);background:var(--none-bg);color:var(--none)}
+.notice.warn{border-color:var(--unloc);background:var(--unloc-bg);color:var(--unloc)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 0;font-size:11.5px}
+.legend span{padding:1px 7px;border-radius:5px;font-weight:600}
+section.topic{margin:22px 0 0;background:var(--panel);border:1px solid var(--line);
+  border-radius:11px;overflow:hidden}
+section.topic.sub{margin-left:20px}
+.th{padding:12px 15px;border-bottom:1px solid var(--line);display:flex;
+  flex-wrap:wrap;gap:9px;align-items:baseline}
+.th h2{margin:0;font-size:15.5px;font-weight:640}
+.th h2.small{font-size:14px}
+.th .n{color:var(--muted);font-size:12px}
+.tnote{padding:0 15px 12px;color:var(--muted);font-size:12.5px;max-width:96ch}
+.doc{border-top:1px solid var(--line);padding:12px 15px}
+.doc:first-of-type{border-top:none}
+.dh{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;cursor:pointer}
+.dh h3{margin:0;font-size:14px;font-weight:600}
+.dh:hover h3{color:var(--accent)}
+.pill{display:inline-block;padding:1px 7px;border-radius:999px;font-size:10.5px;
+  font-weight:600;border:1px solid currentColor;white-space:nowrap}
+.meta{color:var(--muted);font-size:11.5px}
+.oneline{color:var(--muted);font-size:12.5px;margin:4px 0 0;max-width:100ch}
+.flag{font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:4px}
+.flag.stale{color:var(--stale);background:var(--unloc-bg)}
+.flag.bad{color:var(--none);background:var(--none-bg)}
+.flag.stub{color:var(--muted);background:var(--bg);border:1px solid var(--line)}
+.body{margin:10px 0 2px;padding:10px 0 0;border-top:1px dashed var(--line)}
+ol.claims{margin:4px 0 10px;padding-left:22px}
+ol.claims li{margin:4px 0;font-size:13px}
+.mk{font-size:10.5px;font-weight:600;padding:1px 6px;border-radius:5px;margin-left:6px;
+  white-space:nowrap}
+.mk.loc{color:var(--loc);background:var(--loc-bg)}
+.mk.unloc{color:var(--unloc);background:var(--unloc-bg)}
+.mk.link{color:var(--link);background:var(--link-bg)}
+.mk.infer{color:var(--infer);background:var(--infer-bg)}
+.mk.none{color:var(--none);background:var(--none-bg)}
+.ct{font-size:10px;color:var(--muted);margin-left:5px;text-transform:uppercase;
+  letter-spacing:.04em}
+.caps{margin:6px 0 0;font-size:12px;color:var(--muted)}
+.caps li{margin:2px 0}
+.caps code{font-size:11px}
+.caps .bad{color:var(--none);font-weight:600}
+.path{color:var(--muted);font-size:11px;margin-top:8px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+.empty{padding:14px 15px;color:var(--muted);font-size:12.5px}
+footer{border-top:1px solid var(--line);margin-top:32px;padding:16px 24px 40px;
+  color:var(--muted);font-size:12px;max-width:1280px;margin-left:auto;margin-right:auto}
+footer strong{color:var(--ink)}
+@media print{ header{position:static} .bar{display:none} .body{display:block!important} }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="ttl">{{TITLE}}</h1>
+  <div class="sub" id="sub"></div>
+  <div class="bar">
+    <input type="search" id="q" placeholder="Search titles, snapshots and claims…" aria-label="Search">
+    <select id="ftopic"><option value="">All topics</option></select>
+    <select id="ftype"><option value="">All types</option></select>
+    <select id="fauth"><option value="">All authorities</option></select>
+    <label class="chk"><input type="checkbox" id="ffresh"> Hide stale</label>
+    <label class="chk"><input type="checkbox" id="fbad"> Only pages with problems</label>
+    <label class="chk"><input type="checkbox" id="fopen"> Expand all claims</label>
+  </div>
+  <div class="legend" id="legend"></div>
+</header>
+
+<div class="wrap">
+  <div class="stats" id="stats"></div>
+  <div id="notices"></div>
+  <div id="body"></div>
+</div>
+
+<footer>
+  <p><strong>This library records what a collection of documents says. A document being
+  here implies nothing about whether it is correct.</strong> A first-party announcement is
+  a marketing artifact as well as a technical one; a preprint has not been reviewed; a blog
+  post may have been edited since it was captured. Every claim shows the marker naming
+  where it came from, and the four kinds are not interchangeable — a page locator, an
+  unlocated claim, a linked-page claim and a reader's inference are four different things.</p>
+  <p id="foot"></p>
+</footer>
+
+<script type="application/json" id="ai-lib-data">{{LIBRARY_DATA}}</script>
+<script>
+(function(){
+"use strict";
+var D = JSON.parse(document.getElementById("ai-lib-data").textContent);
+
+function esc(s){ return String(s==null?"":s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+var MK = {
+  loc:   ["loc",   "this document, located"],
+  unloc: ["unloc", "this document, page not pinned"],
+  link:  ["link",  "a depth-1 linked page — NOT this document"],
+  infer: ["infer", "the reader's own conclusion"],
+  none:  ["none",  "NO MARKER — untraceable"]
+};
+
+document.getElementById("legend").innerHTML = Object.keys(MK).map(function(k){
+  return '<span class="mk '+k+'" title="'+esc(MK[k][1])+'">'+MK[k][0]+'</span>';
+}).join("") + '<span style="color:var(--muted);border:none;font-weight:400">'
+  + 'four provenance markers, never interchangeable</span>';
+
+var state = { q:"", topic:"", type:"", auth:"", fresh:false, bad:false,
+              openAll:false, open:{} };
+
+function uniq(key){
+  var s={}; D.documents.forEach(function(d){ if(d[key]) s[d[key]]=1; });
+  return Object.keys(s).sort();
+}
+function fill(id, vals){
+  var el=document.getElementById(id);
+  vals.forEach(function(v){
+    var o=document.createElement("option"); o.value=v; o.textContent=v; el.appendChild(o);
+  });
+}
+
+function hasProblem(d){
+  return d.unmarked>0 || d.findings.error>0 || d.is_stub ||
+         d.captures.some(function(c){ return c.audit!=="authorized"; });
+}
+
+function matches(d){
+  if(state.topic && d.topic!==state.topic && d.topic.indexOf(state.topic+"/")!==0) return false;
+  if(state.type && d.publication_type!==state.type) return false;
+  if(state.auth && d.authority!==state.auth) return false;
+  if(state.fresh && d.stale) return false;
+  if(state.bad && !hasProblem(d)) return false;
+  if(state.q){
+    var hay=[d.title, d.doc_id, d.publisher, d.snapshot, (d.note.one_liner||""),
+             d.tags.join(" "), d.models.join(" "),
+             d.claims.map(function(c){return c.text;}).join(" ")].join(" ").toLowerCase();
+    if(hay.indexOf(state.q.toLowerCase())===-1) return false;
+  }
+  return true;
+}
+
+function claimList(d){
+  if(!d.claims.length) return '<p class="meta">No claims recorded on this page.</p>';
+  return '<ol class="claims">' + d.claims.map(function(c){
+    var k = MK[c.kind] ? c.kind : "none";
+    var mk = '<span class="mk '+k+'" title="'+esc(MK[k][1])+'">'
+           + esc(c.marker || MK[k][0]) + '</span>';
+    var ct = c.type ? '<span class="ct">'+esc(c.type)+'</span>' : "";
+    return "<li>"+esc(c.text)+mk+ct+"</li>";
+  }).join("") + "</ol>";
+}
+
+function capList(d){
+  if(!d.captures.length) return "";
+  return '<div class="caps"><b>Depth-1 links followed:</b><ul class="caps">'
+    + d.captures.map(function(c){
+        var bad = c.audit!=="authorized";
+        return "<li>"+(bad?'<span class="bad">['+esc(c.audit)+']</span> ':"")
+          + "<code>"+esc(c.url)+"</code> — "+esc(c.link_class)+", "+esc(c.status)
+          + (c.accessed?", accessed "+esc(c.accessed):"")+"</li>";
+      }).join("")
+    + "</ul>"
+    + (d.links_declined ? '<div style="margin-top:3px">'+d.links_declined
+       + ' authorized link(s) deliberately not followed.</div>' : "")
+    + "</div>";
+}
+
+function docBlock(d){
+  var flags=[];
+  if(d.stale) flags.push('<span class="flag stale" title="past this topic\'s staleness threshold">stale'
+    + (d.age_days? " · "+Math.round(d.age_days/30)+"mo":"")+'</span>');
+  if(d.unmarked) flags.push('<span class="flag bad">'+d.unmarked+' unmarked claim(s)</span>');
+  if(d.findings.error) flags.push('<span class="flag bad">'+d.findings.error+' error(s)</span>');
+  if(d.captures.some(function(c){return c.audit!=="authorized";}))
+    flags.push('<span class="flag bad">unauthorized capture</span>');
+  if(d.is_stub) flags.push('<span class="flag stub">stub</span>');
+  if(d.status!=="active") flags.push('<span class="flag stub">'+esc(d.status)+'</span>');
+
+  var open = state.openAll || state.open[d.doc_id];
+  var line = d.note.one_liner || firstBullet(d.snapshot);
+
+  return '<div class="doc"><div class="dh" data-id="'+esc(d.doc_id)+'">'
+    + "<h3>"+esc(d.title)+"</h3>"
+    + '<span class="pill">'+esc(d.publication_type||"—")+"</span>"
+    + '<span class="pill">'+esc(d.authority||"—")+"</span>"
+    + '<span class="meta">'+esc(d.published||d.year||"undated")
+    + (d.publisher? " · "+esc(d.publisher):"")
+    + " · "+d.claim_count+" claim"+(d.claim_count===1?"":"s")
+    + (d.located!==d.claim_count? " ("+d.located+" located)":"")
+    + (d.benchmarks? " · "+d.benchmarks+" benchmark row"+(d.benchmarks===1?"":"s"):"")
+    + "</span>" + flags.join("")
+    + "</div>"
+    + (line? '<p class="oneline">'+esc(line)+"</p>" : "")
+    + (open ? '<div class="body">'
+        + (d.note.why_read? "<p><b>Why read it:</b> "+esc(d.note.why_read)+"</p>":"")
+        + (d.note.caveat? "<p><b>Caveat:</b> "+esc(d.note.caveat)+"</p>":"")
+        + "<b>Key claims</b>" + claimList(d) + capList(d)
+        + (d.url? '<div class="path">source: '+esc(d.url)+"</div>":"")
+        + '<div class="path">'+esc(d.page)+"</div>"
+        + "</div>" : "")
+    + "</div>";
+}
+
+function firstBullet(text){
+  if(!text) return "";
+  var lines=String(text).split("\n");
+  for(var i=0;i<lines.length;i++){
+    var l=lines[i].trim();
+    if(l.indexOf("-")===0||l.indexOf("*")===0)
+      return l.replace(/^[-*]\s*/,"").replace(/\[[^\]]*\]/g,"").trim();
+  }
+  return "";
+}
+
+function draw(){
+  var shown = D.documents.filter(matches);
+  var t = D.totals;
+
+  document.getElementById("stats").innerHTML = [
+    "<b>"+shown.length+"</b><span>documents shown</span>",
+    "<b>"+t.claims+"</b><span>claims recorded</span>",
+    "<b>"+t.located+"</b><span>with a page locator</span>",
+    "<b>"+t.captures+"</b><span>depth-1 captures</span>",
+    "<b>"+t.leaves+"</b><span>leaf topics</span>"
+  ].map(function(s){ return '<div class="stat">'+s+"</div>"; }).join("");
+
+  var n=[];
+  if(t.unmarked) n.push('<div class="notice bad"><b>'+t.unmarked+' claim(s) carry no '
+    + 'provenance marker.</b> An unmarked claim is indistinguishable from a traceable one, '
+    + 'which destroys the only property that makes this library worth having. Run '
+    + '<code>/ai-lib-lint</code> — it names each one, and it will not invent a marker to '
+    + 'silence itself.</div>');
+  if(t.captures_bad) n.push('<div class="notice bad"><b>'+t.captures_bad+' capture(s) are '
+    + 'not in any authorized link plan.</b> That is the signature of a second-hop fetch: a '
+    + 'URL found on a page that was itself fetched.</div>');
+  if(t.errors) n.push('<div class="notice warn"><b>'+t.errors+' contract error(s)</b> '
+    + 'across these pages. Run <code>/ai-lib-lint</code> before relying on an answer '
+    + 'built from them.</div>');
+  if(t.stale) n.push('<div class="notice warn"><b>'+t.stale+' document(s) are past their '
+    + "topic's staleness threshold.</b> Not a defect — but an answer drawn from one should "
+    + 'say so.</div>');
+  document.getElementById("notices").innerHTML = n.join("");
+
+  var byTopic={};
+  shown.forEach(function(d){ (byTopic[d.topic]=byTopic[d.topic]||[]).push(d); });
+
+  var html="";
+  D.tree.forEach(function(node){
+    var mine = byTopic[node.topic] || [];
+    var descendants = shown.filter(function(d){
+      return d.topic===node.topic || d.topic.indexOf(node.topic+"/")===0; }).length;
+    if(!descendants && (state.q||state.topic||state.type||state.auth||state.fresh||state.bad))
+      return;
+
+    var share = D.shares[node.topic];
+    html += '<section class="topic'+(node.depth?" sub":"")+'"><div class="th">'
+      + "<h2"+(node.depth?' class="small"':"")+">"+esc(node.title)+"</h2>"
+      + '<span class="n">'+esc(node.topic)+" · "
+      + (node.node_type==="branch"
+          ? descendants+" document(s) across its leaves"
+          : mine.length+" document"+(mine.length===1?"":"s"))
+      + (share && share.expected!=null
+          ? " · "+Math.round(share.actual*100)+"% of library, expected ~"
+            + Math.round(share.expected*100)+"%" : "")
+      + "</span></div>";
+    if(node.note && (node.note.positioning||node.note.gaps)){
+      html += '<div class="tnote">'+esc(node.note.positioning||"")
+        + (node.note.gaps? "<br><b>Gaps:</b> "+esc(node.note.gaps):"")+"</div>";
+    }
+    if(node.node_type==="branch"){
+      html += "</section>";
+      return;
+    }
+    if(!mine.length){
+      html += '<div class="empty">No documents'
+        + ((state.q||state.type||state.auth||state.fresh||state.bad)? " match the filters"
+           : " yet — run <code>/ai-lib-ingest</code> with a PDF for this topic")
+        + ".</div></section>";
+      return;
+    }
+    mine.sort(function(a,b){
+      return String(b.published||"").localeCompare(String(a.published||""))
+          || a.title.localeCompare(b.title);
+    });
+    mine.forEach(function(d){ html += docBlock(d); });
+    html += "</section>";
+  });
+
+  document.getElementById("body").innerHTML = html ||
+    '<div class="notice">Nothing matches these filters.</div>';
+}
+
+document.getElementById("sub").textContent =
+  D.totals.leaves + " leaf topics · " + D.totals.documents + " documents · "
+  + D.totals.claims + " claims (" + D.totals.located + " with a page locator) · "
+  + D.totals.captures + " depth-1 captures · generated " + D.generated;
+
+document.getElementById("foot").textContent =
+  "Generated " + D.generated + " by /ai-lib-list from " + D.library_name
+  + ". A snapshot, not a live view — regenerate after every ingest."
+  + (D.include_superseded ? " Superseded documents are included."
+                          : " Superseded documents are excluded.");
+
+fill("ftopic", D.tree.filter(function(t){return t.node_type==="leaf";})
+                     .map(function(t){return t.topic;}));
+fill("ftype", uniq("publication_type"));
+fill("fauth", uniq("authority"));
+
+var q=document.getElementById("q"), timer=null;
+q.addEventListener("input", function(){
+  clearTimeout(timer);
+  timer=setTimeout(function(){ state.q=q.value.trim(); draw(); }, 110);
+});
+[["ftopic","topic"],["ftype","type"],["fauth","auth"]].forEach(function(p){
+  document.getElementById(p[0]).addEventListener("change", function(e){
+    state[p[1]]=e.target.value; draw();
+  });
+});
+[["ffresh","fresh"],["fbad","bad"],["fopen","openAll"]].forEach(function(p){
+  document.getElementById(p[0]).addEventListener("change", function(e){
+    state[p[1]]=e.target.checked; draw();
+  });
+});
+document.getElementById("body").addEventListener("click", function(ev){
+  var h=ev.target.closest(".dh");
+  if(!h) return;
+  var id=h.getAttribute("data-id");
+  state.open[id]=!state.open[id];
+  draw();
+});
+document.addEventListener("keydown", function(e){
+  if(e.key==="/" && document.activeElement!==q){ e.preventDefault(); q.focus(); }
+  if(e.key==="Escape" && document.activeElement===q){ q.value=""; state.q=""; draw(); q.blur(); }
+});
+
+draw();
+})();
+</script>
+</body>
+</html>
