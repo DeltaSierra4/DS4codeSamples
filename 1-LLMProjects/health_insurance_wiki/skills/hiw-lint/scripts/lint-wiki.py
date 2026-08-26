@@ -669,7 +669,18 @@ def check_value_formats(rel, fm, raw, findings, company=None, plan_id=None):
                     % (key, r, inner),
                     autofix=True, derived={key: inner},
                     company=company, plan_id=plan_id, field=key))
-            elif re.search(r"[$£€,]", inner) and re.match(r"^-?\d+(\.\d+)?$", cleaned):
+            elif (re.search(r"[$£€,]", inner)
+                  and re.match(r"^-?\d+(\.\d+)?$", cleaned)
+                  and not re.search(r"[A-Za-z%]", inner)):
+                # The letter/percent guard is load-bearing. A genuinely non-numeric
+                # cost share like "25% coinsurance, maximum $300 per fill" is
+                # SANCTIONED by § 2.3, and stripping it to digits yields "25300",
+                # which looks like a number carrying separators. Without this guard
+                # the rule fires at ERROR severity on the most common cost-share
+                # shape in a real SBC, and tells the author to replace a correct
+                # value with a meaningless one. Found by a live model test: all
+                # three models produced this shape and all three were wrongly
+                # flagged.
                 findings.append(finding(
                     "FM-MONEY-QUOTED", "error", rel,
                     "`%s: %s` is a quoted number carrying a currency symbol or "
