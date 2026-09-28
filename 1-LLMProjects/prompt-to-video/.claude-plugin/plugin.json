@@ -1,0 +1,7 @@
+{
+  "name": "video-gen",
+  "description": "Turn a reference document, or just a description, into a finished video without opening a terminal. /video-generate takes it from a prompt to a narrated video in one command. /video-full renders an mp4, /video-quick renders a self-contained HTML player, /add-sound lays narration over either, /refresh clears the workspace between runs.",
+  "author": {
+    "name": "Client DDV"
+  }
+}

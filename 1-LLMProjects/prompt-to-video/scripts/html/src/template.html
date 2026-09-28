@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<!--
+  DECK TEMPLATE. Copy this, rename it, fill in the scenes.
+
+  Author with no build step: open this file in a browser, edit, refresh. It loads
+  ./player.js from beside it. When it is finished, pack it into the single file that
+  gets sent to people:
+
+      node build/pack.mjs src/my-deck.html dist/my-deck.html
+      node build/check.mjs dist/my-deck.html
+
+  THE RULE: no CSS `transition`, no setTimeout, no requestAnimationFrame. Everything
+  visible is a track on the timeline. That is what makes the scrub bar work, and it
+  keeps the deck renderable to mp4 later by ../poc-html's frame renderer if that is
+  ever needed.
+
+  NO WEBFONTS. A self-contained file cannot fetch them. Design for Georgia and
+  Segoe UI, or embed a font, per reference/distribution.md.
+
+  Playback: ?autoplay=0  ?loop=1  ?controls=0  ?embed=1  ?t=12.5
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deck template</title>
+<style>
+  :root{
+    --sand:#f7f3ec; --accent:#d04a02; --accent-2:#eb8c00;
+    --mute:rgba(247,243,236,.62); --line:rgba(247,243,236,.18);
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --serif:Georgia,"Iowan Old Style","Palatino Linotype","Times New Roman",serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden;background:#05090c}
+  body{-webkit-font-smoothing:antialiased;font-family:var(--sans);color:var(--sand)}
+
+  /* Fixed 1280x720 coordinate system; the player centres and scales it to the window. */
+  .stage{position:absolute;top:50%;left:50%;width:1280px;height:720px;overflow:hidden;
+    transform:translate(-50%,-50%);transform-origin:center center;
+    background:linear-gradient(158deg,#0e2f3c 0%,#0b2530 48%,#10222b 100%)}
+  .stage::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:90;opacity:.5;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E")}
+
+  /* The player owns scene opacity. Leave it at 0 here and do not animate it in CSS. */
+  .scene{position:absolute;inset:0;opacity:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;padding:0 96px;text-align:center}
+
+  .eyebrow{font-size:13.5px;font-weight:700;letter-spacing:.3em;color:var(--accent-2)}
+  h1{font-family:var(--serif);font-weight:400;font-size:72px;line-height:1.05;letter-spacing:-.02em}
+  h2{font-family:var(--serif);font-weight:400;font-size:48px;line-height:1.12;letter-spacing:-.015em}
+  .lead{font-size:21px;color:var(--mute);line-height:1.5;max-width:820px}
+  .rule{width:130px;height:3px;border-radius:2px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));transform-origin:left center}
+  .bignum{font-family:var(--serif);font-size:94px;font-weight:400;line-height:1;
+    font-variant-numeric:tabular-nums;color:var(--accent-2)}
+
+  .sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <section class="scene" id="s1">
+    <div class="eyebrow">EYEBROW</div>
+    <h1><span class="w">Your title here</span></h1>
+    <div class="rule" style="margin-top:28px"></div>
+    <div class="lead" style="margin-top:26px">The line underneath.</div>
+  </section>
+
+  <section class="scene" id="s2">
+    <div class="bignum" id="n1">0</div>
+    <div class="lead" style="margin-top:18px">What the number means.</div>
+  </section>
+
+  <section class="scene" id="s3">
+    <h2>The closing line.</h2>
+  </section>
+
+</div>
+
+<!-- Everything the deck says, for screen readers and for JS-off. Keep it current. -->
+<div class="sr">
+  <p>Your title here. The line underneath. 1,250, what the number means. The closing line.</p>
+</div>
+
+<noscript>
+  <div style="padding:8vw;text-align:center;font-size:18px;line-height:1.6">
+    This page animates with JavaScript, which is switched off.
+  </div>
+</noscript>
+
+<script src="player.js"></script>
+<script>
+  var P = DeckPlayer;
+
+  DeckPlayer.create({
+    stage: '.stage',
+    fade: 500,
+
+    // total = sum(dur) - (sceneCount - 1) * fade
+    // Here: 6000 + 6000 + 5000 - 2*500 = 16000ms.
+    scenes: [
+
+      { id: 'title', el: '#s1', dur: 6000, label: 'Title', tracks: [
+        { el: '.eyebrow', preset: 'riseIn',    at: 300,  dur: 800 },
+        { el: 'h1 .w',    preset: 'riseIn',    at: 600,  dur: 1000, stagger: 150 },
+        { el: '.rule',    preset: 'wipeRight', at: 1400, dur: 900 },
+        { el: '.lead',    preset: 'riseIn',    at: 1800, dur: 900 },
+      ]},
+
+      { id: 'number', el: '#s2', dur: 6000, label: 'The number', tracks: [
+        { el: '.bignum', preset: 'popIn', at: 400, dur: 800 },
+        { el: '#n1', compute: P.countTo(P.fmt.comma), from: 0, to: 1250,
+          at: 600, dur: 1800, ease: 'outExpo' },
+        { el: '.lead', preset: 'fadeIn', at: 1600, dur: 800 },
+      ]},
+
+      { id: 'close', el: '#s3', dur: 5000, label: 'Close', tracks: [
+        { el: 'h2', preset: 'riseIn', at: 400, dur: 1000 },
+      ]},
+
+    ],
+  });
+</script>
+</body>
+</html>

@@ -9,13 +9,14 @@ The `LLM Projects` directory contains the following LLM and AI projects:
 * SevenTrips: An AI-assisted advisor that analyzes an applicants resume and a job posting **for a job that they were rejected for**, then provides advice on how to improve the applicant's resume for a better chance to get accepted in the next job application. It also provides resume revisions from the perspective of an ATS bot. Currently work in progress.
 * SillyBattleBot: A silly-fun text-based debate where I make different LLMs engage in a debate against one another.
 
-Additionally, four Claude projects have been added to the LLM projects:
+Additionally, five Claude projects have been added to the LLM projects:
 
 * career-portfolio-claude-plugin: A Claude plugin that produces easily-readable and interactive business portfolios in HTML and PDF format along with a CV to go with.
 * health_insurance_wiki: A fully-packaged Claude plugin that builds a Karpathy-wiki-like knowledge base that can run Agentic RAG search for the purpose of comparing various health insurance plans across multiple insurance providers.
 * ai_library: Similar to health_insurance_wiki above, but more of a generalized agentic RAG library to be used on a wide assortment of PDF printouts of AI-related news, blog posts, and research papers.
 * sample_mcp_tool is an observing tool that connects Microsoft Outlook, Onedrive, and Microsoft Teams. This sample tool is configured to look for specific daily/weekly digest emails, summarize them, and upload them to the user's Onedrive while notifying them on Microsoft Teams.
 * telemetry_tool was produced via Claude Cowork using CLAUDE.md and FLOW.md to build a simple telemetry toolkit to monitor token usage of my projects.
+* prompt-to-video is a Claude plugin that takes in a user prompt and guides a user through a dialogue to deliver a short 60 ~ 120 second video for software demo purposes. It is capable of presenting videos in either .mp4 or .html format.
 
 # Data Science Samples
 

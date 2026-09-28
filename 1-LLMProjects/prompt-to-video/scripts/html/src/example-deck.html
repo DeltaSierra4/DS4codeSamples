@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<!--
+  WORKED EXAMPLE. 60.00s, six scenes. Copy this to start a real deck.
+
+  It deliberately exercises every feature the authoring rules warn about, so it
+  is the file to read before writing your own:
+
+    scene 1  stagger, and an ADDITIVE second transform on one element
+    scene 2  compound selectors scoped inside their scene (.card.a, .card .nm)
+    scene 3  compute tracks: counting text, which is not a CSS property
+    scene 4  proportional bars, width keyframes paired with a compute label
+    scene 5  a staggered cascade
+    scene 6  close
+
+  The content is the plugin describing itself, and every number in it is one
+  this plugin measured. That is on purpose: a worked example that ships to other
+  people must not carry anything from an engagement.
+
+  Author with no build step: open this file in a browser, edit, refresh. It
+  loads ./player.js from beside it. When it is finished:
+
+      node build/pack.mjs src/my-deck.html ../../output/my-deck.html
+      node build/check.mjs ../../output/my-deck.html
+
+  THE RULE: no CSS `transition`, no setTimeout, no requestAnimationFrame.
+  Everything visible is a track on the timeline.
+
+  NO WEBFONTS. A self-contained file cannot fetch them.
+
+  Playback: ?autoplay=0  ?loop=1  ?controls=0  ?embed=1  ?t=12.5
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Example deck</title>
+<style>
+  :root{
+    --sand:#f7f3ec; --accent:#d04a02; --accent-2:#eb8c00;
+    --mute:rgba(247,243,236,.62); --line:rgba(247,243,236,.18);
+    --panel:rgba(247,243,236,.06);
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --serif:Georgia,"Iowan Old Style","Palatino Linotype","Times New Roman",serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden;background:#05090c}
+  body{-webkit-font-smoothing:antialiased;font-family:var(--sans);color:var(--sand)}
+
+  /* Fixed 1280x720 coordinate system; the player centres and scales it. */
+  .stage{position:absolute;top:50%;left:50%;width:1280px;height:720px;overflow:hidden;
+    transform:translate(-50%,-50%);transform-origin:center center;
+    background:linear-gradient(158deg,#0e2f3c 0%,#0b2530 48%,#10222b 100%)}
+
+  /* The player owns scene opacity. Leave it at 0 and never animate it in CSS. */
+  .scene{position:absolute;inset:0;opacity:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;padding:0 96px;text-align:center}
+
+  .eyebrow{font-size:13.5px;font-weight:700;letter-spacing:.3em;color:var(--accent-2)}
+  h1{font-family:var(--serif);font-weight:400;font-size:72px;line-height:1.05;letter-spacing:-.02em}
+  h2{font-family:var(--serif);font-weight:400;font-size:46px;line-height:1.14;letter-spacing:-.015em}
+  .lead{font-size:21px;color:var(--mute);line-height:1.5;max-width:860px}
+  .rule{width:130px;height:3px;border-radius:2px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));transform-origin:left center}
+
+  /* scene 2: two cards */
+  .cards{display:flex;gap:26px;align-items:stretch;justify-content:center;margin-top:30px}
+  .card{width:340px;padding:26px 24px;border:1px solid var(--line);border-radius:14px;
+    background:var(--panel);text-align:left}
+  .card .nm{font-family:var(--serif);font-size:30px;color:var(--accent-2)}
+  .card .desc{margin-top:12px;font-size:17px;line-height:1.5;color:var(--mute)}
+  .vs{align-self:center;font-size:13px;letter-spacing:.24em;color:var(--mute)}
+
+  /* scene 3: counters */
+  .stats{display:flex;gap:64px;margin-top:34px}
+  .stat{min-width:210px}
+  .stat .v{font-family:var(--serif);font-size:86px;line-height:1;
+    font-variant-numeric:tabular-nums;color:var(--accent-2)}
+  .stat .k{margin-top:10px;font-size:15.5px;color:var(--mute);line-height:1.45}
+
+  /* scene 4: proportional bars */
+  .bars{width:840px;margin-top:34px;text-align:left}
+  .bar{margin-bottom:22px}
+  .bar .lbl{display:flex;justify-content:space-between;font-size:16px;margin-bottom:9px}
+  .bar .lbl b{font-variant-numeric:tabular-nums;color:var(--accent-2);font-weight:400}
+  .bar .track{height:16px;border-radius:9px;background:var(--panel);overflow:hidden}
+  .bar .fill{height:100%;width:0;border-radius:9px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+
+  /* scene 5: cascade */
+  .rules{margin-top:28px;text-align:left;max-width:780px}
+  .r{display:flex;gap:16px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line);font-size:19px}
+  .r i{font-style:normal;font-variant-numeric:tabular-nums;color:var(--accent-2);min-width:26px}
+
+  .sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <section class="scene" id="s1">
+    <div class="eyebrow">VIDEO GEN</div>
+    <h1><span class="w">Two engines.</span> <span class="w">One narration.</span></h1>
+    <div class="rule" style="margin-top:28px"></div>
+    <div class="lead" style="margin-top:26px">Write the script first. Every other number follows from its timing.</div>
+  </section>
+
+  <section class="scene" id="s2">
+    <div class="eyebrow">PICK BY WHERE IT HAS TO GO</div>
+    <div class="cards">
+      <div class="card a">
+        <div class="nm">/video-full</div>
+        <div class="desc">An mp4. Goes into a slide, a post, anywhere that expects a video file.</div>
+      </div>
+      <div class="vs">OR</div>
+      <div class="card b">
+        <div class="nm">/video-quick</div>
+        <div class="desc">One HTML file. Opens in any browser, with no player and no network.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene" id="s3">
+    <div class="eyebrow">WHAT THE BUILD CHECKS</div>
+    <div class="stats">
+      <div class="stat"><div class="v" id="n-player">0</div><div class="k">player checks on the<br>schedule and clock</div></div>
+      <div class="stat"><div class="v" id="n-sel">0</div><div class="k">track selectors proved<br>inside their own scene</div></div>
+      <div class="stat"><div class="v" id="n-err">0.00</div><div class="k">seconds of timing error,<br>measured not calculated</div></div>
+    </div>
+  </section>
+
+  <section class="scene" id="s4">
+    <div class="eyebrow">THE SAME NINETY SECONDS</div>
+    <div class="bars">
+      <div class="bar">
+        <div class="lbl"><span>mp4, 1920 by 1080</span><b id="a-mp4">0 KB</b></div>
+        <div class="track"><div class="fill" id="v-mp4"></div></div>
+      </div>
+      <div class="bar">
+        <div class="lbl"><span>self contained HTML</span><b id="a-html">0 KB</b></div>
+        <div class="track"><div class="fill" id="v-html"></div></div>
+      </div>
+    </div>
+    <div class="lead" style="margin-top:8px">One travels anywhere. The other travels light.</div>
+  </section>
+
+  <section class="scene" id="s5">
+    <div class="eyebrow">SIX RULES THAT KEEP A DECK SEEKABLE</div>
+    <div class="rules">
+      <div class="r"><i>1</i><span>No CSS transition. It cannot be seeked.</span></div>
+      <div class="r"><i>2</i><span>No setTimeout. The player owns the clock.</span></div>
+      <div class="r"><i>3</i><span>Anything that is not a CSS property is a compute track.</span></div>
+      <div class="r"><i>4</i><span>No webfonts, no remote images.</span></div>
+      <div class="r"><i>5</i><span>A second track on one property must be additive.</span></div>
+      <div class="r"><i>6</i><span>No em dashes in visible copy.</span></div>
+    </div>
+  </section>
+
+  <section class="scene" id="s6">
+    <h2>Budget the words.<br>Build to the budget.<br>Verify the result.</h2>
+  </section>
+
+</div>
+
+<!-- Everything the deck says, for screen readers and for JS off. Keep it current. -->
+<div class="sr">
+  <p>Video gen. Two engines, one narration. Write the script first; every other
+  number follows from its timing. Pick by where it has to go: /video-full makes an
+  mp4 for a slide or a post; /video-quick makes one HTML file that opens in any
+  browser with no player and no network. What the build checks: 77 player checks
+  on the schedule and clock, 66 track selectors proved inside their own scene,
+  0.00 seconds of timing error, measured not calculated. The same ninety seconds
+  is 2700 KB as an mp4 and 56 KB as self contained HTML. One travels anywhere,
+  the other travels light. Six rules that keep a deck seekable: no CSS
+  transition, no setTimeout, anything that is not a CSS property is a compute
+  track, no webfonts or remote images, a second track on one property must be
+  additive, and no em dashes in visible copy. Budget the words, build to the
+  budget, verify the result.</p>
+</div>
+
+<noscript>
+  <div style="padding:8vw;text-align:center;font-size:18px;line-height:1.6">
+    This page animates with JavaScript, which is switched off.
+  </div>
+</noscript>
+
+<script src="player.js"></script>
+<script>
+  var P = DeckPlayer;
+
+  DeckPlayer.create({
+    stage: '.stage',
+    width: 1280,
+    height: 720,
+    fade: 500,
+
+    // `dur` is a scene's own on-screen time, both fades included. Consecutive
+    // scenes overlap by `fade`, so the clip is 62500 - 5*500 = 60000ms exactly.
+    scenes: [
+
+      // ------------------------------------------------------ 1 - title  0.0s
+      { id: 'title', el: '#s1', dur: 10000, label: 'Title', tracks: [
+        { el: '.eyebrow', preset: 'riseIn',    at: 300,  dur: 800 },
+        { el: 'h1 .w',    preset: 'riseIn',    at: 650,  dur: 1000, stagger: 220 },
+        { el: '.rule',    preset: 'wipeRight', at: 1700, dur: 900 },
+        { el: '.lead',    preset: 'riseIn',    at: 2100, dur: 950 },
+        // A slow lift so the card is never quite still. `additive` is REQUIRED:
+        // this is a second transform on an element that already has riseIn, and
+        // without composite 'add' it would mask riseIn from t=0 for the whole
+        // timeline. This is the rule that costs people an hour.
+        { el: '.eyebrow', additive: true, ease: 'linear', at: 1600, dur: 7000,
+          keyframes: [{ transform: 'translateY(0)' }, { transform: 'translateY(-7px)' }] },
+      ]},
+
+      // ------------------------------------------------- 2 - two routes  9.5s
+      { id: 'routes', el: '#s2', dur: 12000, label: 'Two routes', tracks: [
+        { el: '.eyebrow',  preset: 'fadeIn',   at: 200,  dur: 700 },
+        { el: '.card.a',   preset: 'slideInL', at: 500,  dur: 950 },
+        { el: '.card.b',   preset: 'slideInR', at: 750,  dur: 950 },
+        { el: '.vs',       preset: 'popIn',    at: 1500, dur: 700 },
+        // Compound descendant selector, resolved inside this scene only.
+        { el: '.card .nm', preset: 'fadeIn',   at: 1000, dur: 700, stagger: 260 },
+        { el: '.card .desc', preset: 'riseIn', at: 1800, dur: 800, stagger: 260 },
+      ]},
+
+      // --------------------------------------------- 3 - what it checks  21.0s
+      { id: 'checks', el: '#s3', dur: 11000, label: 'What it checks', tracks: [
+        { el: '.eyebrow', preset: 'fadeIn', at: 200, dur: 700 },
+        { el: '.stat',    preset: 'riseIn', at: 500, dur: 850, stagger: 300 },
+        // Text content is not a CSS property, so counting is a compute track:
+        // a pure function of progress, evaluated on every frame the player draws.
+        { el: '#n-player', compute: P.countTo(P.fmt.int), from: 0, to: 77,
+          at: 900, dur: 1700, ease: 'outExpo' },
+        { el: '#n-sel', compute: P.countTo(P.fmt.int), from: 0, to: 66,
+          at: 1300, dur: 1700, ease: 'outExpo' },
+        // A bespoke compute: two decimal places, which no formatter covers.
+        { el: '#n-err', compute: function (v, el) { el.textContent = v.toFixed(2); },
+          from: 0.85, to: 0, at: 1700, dur: 1900, ease: 'outExpo' },
+      ]},
+
+      // -------------------------------------------------- 4 - the size  31.5s
+      { id: 'size', el: '#s4', dur: 11500, label: 'The size', tracks: [
+        { el: '.eyebrow', preset: 'fadeIn', at: 200, dur: 700 },
+        { el: '.bar',     preset: 'fadeIn', at: 450, dur: 700, stagger: 300 },
+        // Bars are proportional: 2700 KB is the full track, 56 KB is 2.1% of it.
+        { el: '#v-mp4',  keyframes: [{ width: '0%' }, { width: '100%' }], at: 900,  dur: 1400, ease: 'outExpo' },
+        { el: '#v-html', keyframes: [{ width: '0%' }, { width: '2.1%' }], at: 2300, dur: 1400, ease: 'outExpo' },
+        { el: '#a-mp4',  compute: function (v, el) { el.textContent = Math.round(v) + ' KB'; },
+          from: 0, to: 2700, at: 900,  dur: 1400, ease: 'outExpo' },
+        { el: '#a-html', compute: function (v, el) { el.textContent = Math.round(v) + ' KB'; },
+          from: 0, to: 56,   at: 2300, dur: 1400, ease: 'outExpo' },
+        { el: '.lead', preset: 'fadeIn', at: 4200, dur: 800 },
+      ]},
+
+      // -------------------------------------------------- 5 - the rules  42.5s
+      { id: 'rules', el: '#s5', dur: 10000, label: 'The rules', tracks: [
+        { el: '.eyebrow', preset: 'fadeIn', at: 200, dur: 700 },
+        { el: '.r',       preset: 'riseIn', at: 500, dur: 700, stagger: 340 },
+      ]},
+
+      // -------------------------------------------------- 6 - close  52.0s
+      { id: 'close', el: '#s6', dur: 8000, label: 'Close', tracks: [
+        { el: 'h2', preset: 'riseIn', at: 500, dur: 1100 },
+      ]},
+
+    ],
+  });
+</script>
+</body>
+</html>
