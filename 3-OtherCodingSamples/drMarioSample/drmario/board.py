@@ -53,28 +53,48 @@ class Board:
 
     # ----- virus placement -------------------------------------------------
 
-    def spawn_viruses(self, count, rng=None):
-        """Place up to ``count`` viruses in the lower half of the board.
+    def spawn_viruses(self, count, rng=None, max_height=None):
+        """Place up to ``count`` viruses at random in the bottom ``max_height``
+        rows (the lower half by default).
+
+        Colours are dealt evenly, as in the arcade: each colour gets
+        ``count // 3`` viruses and any remainder goes to randomly chosen
+        colours, so no two counts differ by more than one.
 
         Never places a virus that would complete a match, so the opening board
         cannot hand the player a free clear. Returns the number actually
         placed, which may be short of ``count`` on a cramped board.
         """
         rng = rng or random
+        if max_height is None:
+            max_height = self.rows // 2
+        top = self.rows - max(1, min(max_height, self.rows))
+
+        quota = {color: count // len(COLOR_LIST) for color in COLOR_LIST}
+        for color in rng.sample(COLOR_LIST, count % len(COLOR_LIST)):
+            quota[color] += 1
+
         placed = 0
         attempts = 0
         limit = max(count, 1) * 200
         while placed < count and attempts < limit:
             attempts += 1
             x = rng.randrange(self.cols)
-            y = rng.randrange(self.rows // 2, self.rows)
+            y = rng.randrange(top, self.rows)
             if self.get(x, y) is not EMPTY:
                 continue
-            self.set(x, y, {"kind": "virus", "color": random_color_name(rng)})
-            if self._completes_match(x, y):
+            # Offer the colour that is furthest behind its quota first (ties in
+            # random order), falling back to the others if it would match.
+            colors = [c for c in COLOR_LIST if quota[c] > 0]
+            rng.shuffle(colors)
+            colors.sort(key=lambda c: -quota[c])
+            for color in colors:
+                self.set(x, y, {"kind": "virus", "color": color})
+                if not self._completes_match(x, y):
+                    quota[color] -= 1
+                    placed += 1
+                    break
                 self.set(x, y, EMPTY)
-                continue
-            placed += 1
         return placed
 
     def _completes_match(self, x, y):
@@ -175,6 +195,26 @@ class Board:
             bodies.append(body)
         return bodies
 
+    def gravity_step(self):
+        """Drop every unsupported body by one row. Returns True if anything
+        moved. The engine calls this on a timer to animate a cascade."""
+        falling = []
+        for body in self._rigid_bodies():
+            cells = set(body)
+            if all(
+                (x, y + 1) in cells or
+                (self.in_bounds(x, y + 1) and self.get(x, y + 1) is EMPTY)
+                for (x, y) in body
+            ):
+                falling.append(body)
+        for body in falling:
+            payload = [(x, y, self.get(x, y)) for (x, y) in body]
+            for (x, y, _cell) in payload:
+                self.set(x, y, EMPTY)
+            for (x, y, cell) in payload:
+                self.set(x, y + 1, cell)
+        return bool(falling)
+
     def apply_gravity(self):
         """Drop every unsupported body until the board is stable.
 
@@ -182,25 +222,9 @@ class Board:
         fixed point, so callers do not need to loop.
         """
         moved_any = False
-        while True:
-            falling = []
-            for body in self._rigid_bodies():
-                cells = set(body)
-                if all(
-                    (x, y + 1) in cells or
-                    (self.in_bounds(x, y + 1) and self.get(x, y + 1) is EMPTY)
-                    for (x, y) in body
-                ):
-                    falling.append(body)
-            if not falling:
-                return moved_any
-            for body in falling:
-                payload = [(x, y, self.get(x, y)) for (x, y) in body]
-                for (x, y, _cell) in payload:
-                    self.set(x, y, EMPTY)
-                for (x, y, cell) in payload:
-                    self.set(x, y + 1, cell)
+        while self.gravity_step():
             moved_any = True
+        return moved_any
 
     # ----- misc -------------------------------------------------------------
 
