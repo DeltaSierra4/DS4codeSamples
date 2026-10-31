@@ -2,3 +2,6 @@
 .drMarioDebug
 *.pyc
 __pycache__/
+tests
+dec.py.orig
+.pytest_cache
